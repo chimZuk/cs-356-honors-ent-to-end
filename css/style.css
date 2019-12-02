@@ -2,8 +2,20 @@
     margin: 0px;
 }
 
+img {
+    user-select: none;
+    cursor: pointer;
+}
+
 .shadow {
     box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+}
+
+.draggable {
+    touch-action: none;
+    user-select: none;
+    -webkit-transform: translate(0px, 0px);
+            transform: translate(0px, 0px);
 }
 
 .network-body {
@@ -20,11 +32,16 @@
 }
 
 .network-window {
-    height: calc(100% - 20px);
-    width: calc(100% - 20px);
-    margin: 10px;
-    border-radius: 5px;
+    height: calc(100%);
+    width: calc(100%);
+}
+
+.network-window-background {
+    position: absolute;
+    height: calc(100%);
+    width: calc(100%);
     background: white;
+    opacity: 0.8;
 }
 
 .hops-window {
@@ -36,4 +53,11 @@
     margin-top: 0px;
     border-radius: 5px;
     background: white;
+}
+
+.hops-toolbar {
+    height: 50px;
+    width: 100%;
+    background-color: #424a60;
+    border-radius: 5px;
 }
