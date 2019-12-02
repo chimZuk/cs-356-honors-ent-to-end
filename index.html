@@ -3,6 +3,7 @@
 <head>
     <title>End-to-end constructor</title>
     <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/jcanvas.min.js"></script>
     <script src="js/interact.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -10,7 +11,7 @@
 <body>
     <div class="network-body" id="network-body">
         <div class="network-window" id="network-window">
-            <img class="draggable" src="img/router.png" width="100px" height="100px">
+            <canvas class="network-canvas" id="network-canvas" width="100px" height="100px"></canvas>
         </div>
 
         <div class="hops-window shadow" id="hops-window">
@@ -28,7 +29,7 @@
             </div>
         </div>
     </div>
-    
+
     <script src="js/script.js"></script>
 </body>
 

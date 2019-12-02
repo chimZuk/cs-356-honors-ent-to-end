@@ -1,36 +1,52 @@
-function start_application() {
+var network_window = $("#network-window");
+var open_window_toggle = $("#open-window");
+var close_window_toggle = $("#close-window");
+var hop_window_content = $("#hops-window-content");
+var network_canvas = $("#network-canvas")[0];
+var network_canvas_context = network_canvas.getContext('2d');
 
-    toggle_toolbar(false);
-    
+function start_application() {
     var global_network = new Network("Global Network");
     var home_subnetwork = new Subnetwork("Home Network");
+    var view = new ApplicationView();
+
     global_network.add_subnetwork(home_subnetwork);
 
     home_subnetwork.add_client("Yoga 920");
     home_subnetwork.add_client("Samsung Galaxy S8");
     home_subnetwork.add_client("iPhone 7");
 
-    console.log(global_network)
+    view.render_network(global_network);
 }
 
-function update_view() {
+class ApplicationView {
+    constructor() {
+        this.width = network_canvas.offsetWidth;
+        this.height = network_canvas.offsetHeight;
 
-}
+        $(window).on('resize', () => this.resize_canvas());
+    }
 
-var open_window_toggle = $("#open-window");
-var close_window_toggle = $("#close-window");
-var hop_window_content = $("#hops-window-content");
+    resize_canvas() {
+        this.width = network_canvas.offsetWidth;
+        this.height = network_canvas.offsetHeight;
 
-function toggle_toolbar(toggle) {
-    console.log(toggle);
-    if (toggle) {
-        open_window_toggle.hide();
-        close_window_toggle.show();
-        hop_window_content.slideDown();
-    } else {
-        open_window_toggle.show();
-        close_window_toggle.hide();
-        hop_window_content.slideUp();
+        network_canvas.setAttribute('width', this.width);
+        network_canvas.setAttribute('height', this.height);
+    }
+
+    update_dimensions() {
+        this.width = network_canvas.offsetWidth;
+        this.height = network_canvas.offsetHeight;
+    }
+
+    render_network(network) {
+        console.log(network);
+        console.log(network_canvas.offsetWidth);
+
+        network_canvas.setAttribute('width', this.width);
+        network_canvas.setAttribute('height', this.height);
+        network_canvas_context.fillRect(25, 25, 100, 100);
     }
 }
 
@@ -122,7 +138,6 @@ class Interface {
     }
 
     add_ip(ip) {
-        console.log(ip);
         this.ip_address = ip;
     }
 
@@ -133,13 +148,11 @@ class Interface {
     }
 }
 
-
 class Server {
     constructor(name) {
         this.name = name;
     }
 }
-
 
 class Router {
     constructor(name) {
@@ -159,6 +172,43 @@ class ForwardingTable {
     }
 }
 
+start_application();
+toggle_toolbar(false);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function toggle_toolbar(toggle) {
+    if (toggle) {
+        open_window_toggle.hide();
+        close_window_toggle.show();
+        hop_window_content.slideDown();
+    } else {
+        open_window_toggle.show();
+        close_window_toggle.hide();
+        hop_window_content.slideUp();
+    }
+}
 
 function copy_array_1d(arr1) {
     return arr1.slice();
@@ -173,64 +223,6 @@ function copy_object(obj1) {
     for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
     return obj3;
 }
-
-
-start_application();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 interact('.draggable')
     .draggable({

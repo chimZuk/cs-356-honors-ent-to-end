@@ -86,3 +86,28 @@ img {
     width: 100%;
     background-color: ghostwhite;
 }
+
+
+/* Interactive part CSS */
+
+.network-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.network-entity {
+    width: 100px;
+    height: 100px;
+    background-position: center;
+    background-size: contain;
+}
+
+.router {
+    background-image: url("../img/router.png");
+}
+.server {
+    background-image: url("../img/server.png");
+}
+.client {
+    background-image: url("../img/client.png");
+}
