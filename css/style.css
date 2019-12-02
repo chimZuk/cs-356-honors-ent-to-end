@@ -32,7 +32,7 @@ img {
     background-position-x: left;
     background-position-y: center;
     background-repeat: no-repeat;
-    background-size: contain;
+    background-size: cover;
 }
 
 .network-window {
@@ -80,8 +80,9 @@ img {
 .toggle-toolbar a:hover {   
     text-decoration: underline;
 }
-
+    
 .hops-window-content {
+    display: none;
     height: 400px;
     width: 100%;
     background-color: ghostwhite;

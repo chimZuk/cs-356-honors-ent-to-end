@@ -2,13 +2,14 @@ var network_window = $("#network-window");
 var open_window_toggle = $("#open-window");
 var close_window_toggle = $("#close-window");
 var hop_window_content = $("#hops-window-content");
+
+var $canvas = $("#network-canvas");
 var network_canvas = $("#network-canvas")[0];
 var network_canvas_context = network_canvas.getContext('2d');
 
 function start_application() {
     var global_network = new Network("Global Network");
     var home_subnetwork = new Subnetwork("Home Network");
-    var view = new ApplicationView();
 
     global_network.add_subnetwork(home_subnetwork);
 
@@ -16,37 +17,204 @@ function start_application() {
     home_subnetwork.add_client("Samsung Galaxy S8");
     home_subnetwork.add_client("iPhone 7");
 
-    view.render_network(global_network);
+    console.log(global_network);
+
+    var view = new ApplicationView(global_network);
 }
 
 class ApplicationView {
-    constructor() {
-        this.width = network_canvas.offsetWidth;
-        this.height = network_canvas.offsetHeight;
+    constructor(data) {
+        this.temp_network = {};
+        this.links = [];
+        this.render_network(data);
 
-        $(window).on('resize', () => this.resize_canvas());
+        //$(window).on('resize', () => this.render_network(this.temp_network));
     }
 
     resize_canvas() {
+        $canvas.removeLayers();
+        this.links = [];
+
         this.width = network_canvas.offsetWidth;
         this.height = network_canvas.offsetHeight;
-
         network_canvas.setAttribute('width', this.width);
         network_canvas.setAttribute('height', this.height);
-    }
 
-    update_dimensions() {
-        this.width = network_canvas.offsetWidth;
-        this.height = network_canvas.offsetHeight;
+        this.margin = 70;
+        this.x_c = this.width / 2;
+        this.y_c = (this.height - this.margin) / 2;
     }
 
     render_network(network) {
-        console.log(network);
-        console.log(network_canvas.offsetWidth);
+        this.resize_canvas();
 
-        network_canvas.setAttribute('width', this.width);
-        network_canvas.setAttribute('height', this.height);
-        network_canvas_context.fillRect(25, 25, 100, 100);
+        for (var i in network.subnetworks) {
+            var temp_subnetwork = network.subnetworks[i];
+
+            var router_link = this.render_router(temp_subnetwork.router);
+
+            for (var j in temp_subnetwork.devices) {
+                var temp_device = temp_subnetwork.devices[j];
+                var device_links = this.render_client(temp_device, temp_subnetwork.devices.length, j);
+
+                this.links.push([router_link[0], router_link[1], device_links[0], device_links[1]]);
+            }
+        }
+
+        for (var i in this.links) {
+            var temp_link = this.links[i];
+            this.render_links(temp_link);
+        }
+    }
+
+    render_links(link) {
+        console.log("link");
+        $canvas.drawLine({
+            strokeStyle: 'black',
+            strokeWidth: 10,
+            rounded: true,
+            x1: link[2], y1: link[3],
+            x2: link[0], y2: link[1],
+            shadowColor: '#222', shadowBlur: 3
+        });
+    }
+
+    render_router(router) {
+        var sliced_width = this.width / 2;
+        var center_width = sliced_width + sliced_width / 2;
+
+        var x = center_width;
+        var y = this.y_c;
+        var font = "12pt";
+        var name = router.name;
+        var mac_address = "2F:F9:C5:A3:58:87";
+        var ip_address = "1.1.1.1" + "/" + 24;
+
+        console.log("router");
+
+        $canvas
+            .addLayer({
+                type: 'image', source: 'img/router.png',
+                groups: [mac_address],
+                name: 'router_image' + mac_address, layer: true,
+                x: x, y: y,
+                width: 100, height: 100, fromCenter: true,
+                shadowColor: '#222', shadowBlur: 3,
+                rotate: 0,
+                data: router,
+                cursors: {
+                    mouseover: 'pointer',
+                    mousedown: 'pointer',
+                    mouseup: 'pointer'
+                },
+                click: function (layer) {
+                    console.log(layer);
+                }.bind(this)
+            })
+            .addLayer({
+                type: 'rectangle',
+                groups: [mac_address],
+                name: 'router_info_box' + mac_address,
+                fillStyle: '#556080',
+                x: x, y: y + 71,
+                width: 180, height: 22, fromCenter: true,
+                shadowColor: '#222', shadowBlur: 3,
+            })
+            .addLayer({
+                type: 'text',
+                groups: [mac_address],
+                name: 'router_info_name' + mac_address,
+                layer: true,
+                fillStyle: '#bcc5e4',
+                strokeWidth: 1,
+                x: x, y: y + 72,
+                fontSize: font, fontFamily: 'Solway, serif',
+                text: name
+            })
+            .drawLayers();
+
+        return [x, y];
+    }
+
+    render_client(client, c, n) {
+        var sliced_height = (this.height - 50) / c;
+        var center_height = sliced_height / 2;
+
+        var sliced_width = this.width / 2;
+        var center_width = sliced_width / 2;
+
+        var x = center_width;
+        var y = sliced_height * n + center_height;
+        var font = "12pt";
+        var name = client.name;
+        var mac_address = client.interfaces[client.default_interface].mac_address;
+        var ip_address = client.interfaces[client.default_interface].ip_address + "/" + client.interfaces[client.default_interface].mask;
+
+        console.log("client");
+        $canvas
+            .addLayer({
+                type: 'image', source: 'img/client.png',
+                groups: [mac_address],
+                name: 'client_image' + mac_address, layer: true,
+                x: x, y: y,
+                width: 100, height: 100, fromCenter: true,
+                shadowColor: '#222', shadowBlur: 3,
+                rotate: 0,
+                data: client,
+                cursors: {
+                    mouseover: 'pointer',
+                    mousedown: 'pointer',
+                    mouseup: 'pointer'
+                },
+                click: function (layer) {
+                    console.log(layer);
+                }.bind(this)
+            })
+            .addLayer({
+                type: 'rectangle',
+                groups: [mac_address],
+                name: 'client_info_box' + mac_address,
+                fillStyle: '#556080',
+                x: x, y: y + 90,
+                width: 180, height: 60, fromCenter: true,
+                shadowColor: '#222', shadowBlur: 3,
+            })
+            .addLayer({
+                type: 'text',
+                groups: [mac_address],
+                name: 'client_info_name' + mac_address,
+                layer: true,
+                fillStyle: '#bcc5e4',
+                strokeWidth: 1,
+                x: x, y: y + 72,
+                fontSize: font, fontFamily: 'Solway, serif',
+                text: name
+            })
+            .addLayer({
+                type: 'text',
+                groups: [mac_address],
+                name: 'client_info_ip' + mac_address,
+                layer: true,
+                fillStyle: '#bcc5e4',
+                strokeWidth: 1,
+                x: x, y: y + 72 + 18,
+                fontSize: font, fontFamily: 'Solway, serif',
+                text: ip_address
+            })
+            .addLayer({
+                type: 'text',
+                groups: [mac_address],
+                name: 'client_info_mac' + mac_address,
+                layer: true,
+                fillStyle: '#bcc5e4',
+                strokeWidth: 1,
+                x: x, y: y + 72 + 36,
+                fontSize: font, fontFamily: 'Solway, serif',
+                text: mac_address
+            })
+            .drawLayers();
+
+        return [x, y];
     }
 }
 
@@ -222,38 +390,4 @@ function copy_object(obj1) {
     var obj3 = {};
     for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
     return obj3;
-}
-
-interact('.draggable')
-    .draggable({
-        inertia: true,
-        modifiers: [
-            interact.modifiers.restrictRect({
-                restriction: 'parent',
-                endOnly: true
-            })
-        ],
-        autoScroll: true,
-        onmove: on_drag_move,
-        onend: on_drag_end
-    })
-
-function on_drag_move(event) {
-    var target = event.target;
-    var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-    var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-    target.style.webkitTransform =
-        target.style.transform =
-        'translate(' + x + 'px, ' + y + 'px)';
-
-    target.setAttribute('data-x', x);
-    target.setAttribute('data-y', y);
-}
-
-function on_drag_end(event) {
-    console.log('moved a distance of ' +
-        (Math.sqrt(Math.pow(event.pageX - event.x0, 2) +
-            Math.pow(event.pageY - event.y0, 2) | 0))
-            .toFixed(2) + 'px');
 }
