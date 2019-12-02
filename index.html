@@ -4,7 +4,6 @@
     <title>End-to-end constructor</title>
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/interact.min.js"></script>
-    <script src="js/script.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -13,12 +12,24 @@
         <div class="network-window" id="network-window">
             <img class="draggable" src="img/router.png" width="100px" height="100px">
         </div>
+
         <div class="hops-window shadow" id="hops-window">
-            <div class="hops-toolbar">
+            <div class="hops-toolbar shadow">
+                <div class="hop-status" id="hop-status">
+
+                </div>
+                <div class="toggle-toolbar">
+                    <a id="open-window" onclick="toggle_toolbar(true);">Open Window</a>
+                    <a id="close-window" onclick="toggle_toolbar(false);">Close Window</a>
+                </div>
+            </div>
+            <div class="hops-window-content" id="hops-window-content">
 
             </div>
         </div>
     </div>
+    
+    <script src="js/script.js"></script>
 </body>
 
 </html>

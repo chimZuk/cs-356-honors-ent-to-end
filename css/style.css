@@ -1,5 +1,8 @@
+@import url('https://fonts.googleapis.com/css?family=Solway&display=swap');
+
 * {
     margin: 0px;
+    font-family: 'Solway', serif;
 }
 
 img {
@@ -12,6 +15,7 @@ img {
 }
 
 .draggable {
+    cursor: pointer !important;
     touch-action: none;
     user-select: none;
     -webkit-transform: translate(0px, 0px);
@@ -47,17 +51,38 @@ img {
 .hops-window {
     position: fixed;
     bottom: 0px;
-    height: calc(34% - 10px);
+    max-height: calc(34% - 10px);
     width: calc(100% - 20px);
-    margin: 10px;
-    margin-top: 0px;
+    margin: 0px 10px;
     border-radius: 5px;
     background: white;
 }
 
 .hops-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     height: 50px;
     width: 100%;
     background-color: #424a60;
-    border-radius: 5px;
+    border-radius: 5px 5px 0px 0px;
+}
+
+.toggle-toolbar {
+    padding: 0 20px;
+}
+
+.toggle-toolbar a {
+    color: #bcc5e4;
+    cursor: pointer;
+}
+
+.toggle-toolbar a:hover {   
+    text-decoration: underline;
+}
+
+.hops-window-content {
+    height: 400px;
+    width: 100%;
+    background-color: ghostwhite;
 }

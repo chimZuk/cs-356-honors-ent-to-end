@@ -1,5 +1,7 @@
 function start_application() {
 
+    toggle_toolbar(false);
+    
     var global_network = new Network("Global Network");
     var home_subnetwork = new Subnetwork("Home Network");
     global_network.add_subnetwork(home_subnetwork);
@@ -13,6 +15,23 @@ function start_application() {
 
 function update_view() {
 
+}
+
+var open_window_toggle = $("#open-window");
+var close_window_toggle = $("#close-window");
+var hop_window_content = $("#hops-window-content");
+
+function toggle_toolbar(toggle) {
+    console.log(toggle);
+    if (toggle) {
+        open_window_toggle.hide();
+        close_window_toggle.show();
+        hop_window_content.slideDown();
+    } else {
+        open_window_toggle.show();
+        close_window_toggle.hide();
+        hop_window_content.slideUp();
+    }
 }
 
 class Network {
@@ -65,7 +84,7 @@ class Subnetwork {
             return alert("Please, free up " + this.name + " or add this device to another subnetwork.")
         }
 
-        return this.existing_ip[this.existing_ip.push(this.generate_ip_address_string())];
+        return this.existing_ip[this.existing_ip.push(this.generate_ip_address_string()) - 1];
     }
 
     generate_ip_address_string() {
@@ -83,14 +102,13 @@ class Client {
     }
 
     add_interface(name, is_default = false) {
-        var new_interface = new Interface(this.name + ": " + name);
-
-        this.interfaces.push(new_interface);
+        this.interfaces.push(new Interface(this.name + ": " + name));
         this.default_interface = (is_default) ? this.interfaces.length - 1 : this.default_interface;
     }
 
     assign_ip_address(ip) {
         this.interfaces[this.default_interface].add_ip(ip);
+        return this;
     }
 }
 
@@ -104,6 +122,7 @@ class Interface {
     }
 
     add_ip(ip) {
+        console.log(ip);
         this.ip_address = ip;
     }
 
