@@ -23,6 +23,9 @@ function start_application() {
     var global_router_2 = network.add_router("Global Router 2");
     global_router_2.add_interface(network.generate_mac(), network.generate_ip());
 
+    var global_router_3 = network.add_router("Global Router 3");
+    global_router_3.add_interface(network.generate_mac(), network.generate_ip());
+
     var laptop = network.add_client("Yoga 920");
     var phone_1 = network.add_client("Samsung Galaxy S9");
 
@@ -36,7 +39,9 @@ function start_application() {
     network.setup_connection(wifi_router, global_router_2, 2, 0);
 
     network.setup_connection(dns_server, global_router_1, 0, 1);
-    network.setup_connection(web_server, global_router_2, 0, 1);
+    network.setup_connection(global_router_2, global_router_3, 1, 0);
+
+    network.setup_connection(web_server, global_router_3, 0, 1);
 
     console.log(network);
 
@@ -66,21 +71,14 @@ class NetworkRenderer {
 
         for (var device in this.network.devices) {
             var temp_device = this.network.devices[device];
-            console.log("=================")
-            console.log(temp_device.name);
-
             for (var interface_1 in temp_device.interfaces) {
                 var temp_interface_1 = temp_device.interfaces[interface_1];
-                console.log(temp_interface_1);
-                console.log("---------")
                 for (var interface_2 in temp_device.interfaces) {
                     var temp_interface_2 = temp_device.interfaces[interface_2];
                     if (temp_interface_1.ip_address != temp_interface_2.ip_address) {
-                        console.log(temp_interface_2);
                         this.network.links_graph[temp_interface_1.ip_address].push(temp_interface_2.ip_address);
                     }
                 }
-                console.log("=================")
             }
         }
 
@@ -88,30 +86,73 @@ class NetworkRenderer {
             var temp_node = this.network.links_graph[node];
 
             var data = this.network.get_device_by_ip_address(node);
-            console.log(data);
             console.log(data.device.name + ": " + data.interface_d.id, temp_node.map(function (x) {
                 return this.network.get_device_by_ip_address(x).device.name + ": " + this.network.get_device_by_ip_address(x).interface_d.id;
             }.bind(this)));
         }
 
         let longest_path = this.get_longest_path(this.network.links_graph);
-        console.log(longest_path);
     }
 
     get_longest_path(nodes) {
-        var current_length = 0;
-        var max_length = 0;
-        var visited = [];
+        var result = [0, null];
+        var pre_result;
 
-        for (var node in nodes) {
-            visited.push(node);
-
-            var temp_node = nodes[node];
-            max_length = this.get_longest_path_helper(temp_node, copy_array_1d(visited), current_length + 1, max_length);
+        for (var current_node in nodes) {
+            pre_result = this.bfs(current_node);
+            console.log(pre_result);
+            break;
         }
 
-        return max_length;
+        pre_result = this.bfs(pre_result[1]);
+        console.log(pre_result);
     }
+
+    bfs(u) {
+        var dis = {};
+        for (var i in this.network.ip_list) {
+            dis[this.network.ip_list[i]] = -1;
+        }
+
+        var q = [];
+        q.push(u);
+
+        dis[u] = 0;
+        while (q.length != 0) {
+
+            console.log(q.map(function (x) {
+                return this.network.get_device_by_ip_address(x).device.name + ": " + this.network.get_device_by_ip_address(x).interface_d.id;
+            }.bind(this)));
+
+            var t = q[0];
+            q.splice(0, 1);
+
+            for (var i in this.network.links_graph[t]) {
+                var v = this.network.links_graph[t][i];
+                console.log(this.network.get_device_by_ip_address(v).device.name + ": " + this.network.get_device_by_ip_address(v).interface_d.id + ": " + dis[v])
+                
+                if (dis[v] == -1) {
+                    q.push(v);
+                    dis[v] = dis[t] + 1;
+                }
+            }
+        }
+
+        var maxDis = 0;
+        var nodeIdx;
+
+        for (var i in this.network.ip_list) {
+            if (dis[this.network.ip_list[i]] > maxDis) {
+                maxDis = dis[this.network.ip_list[i]];
+                nodeIdx = this.network.ip_list[i];
+            }
+        }
+        console.log(dis);
+        return [maxDis, nodeIdx, this.network.get_device_by_ip_address(u).device.name + ": " + this.network.get_device_by_ip_address(u).interface_d.id, this.network.get_device_by_ip_address(nodeIdx).device.name + ": " + this.network.get_device_by_ip_address(nodeIdx).interface_d.id];
+
+    }
+
+
 
     get_longest_path_helper(nodes, visited, current_length, max_length) {
         if (current_length > max_length) {
