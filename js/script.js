@@ -26,6 +26,7 @@ function start_application() {
     var laptop = network.add_client("Yoga 920");
     var phone_1 = network.add_client("Samsung Galaxy S9");
     var phone_2 = network.add_client("iPhone 7");
+    var phone_3 = network.add_client("Google Chromecast");
 
     var dns_server = network.add_server("DNS Server");
     var web_server = network.add_server("Web Server");
@@ -33,22 +34,153 @@ function start_application() {
     network.setup_connection(laptop, wifi_router, 0, 0);
     network.setup_connection(phone_1, wifi_router, 0, 0);
     network.setup_connection(phone_2, wifi_router, 0, 0);
+    network.setup_connection(phone_3, wifi_router, 0, 0);
 
     network.setup_connection(wifi_router, global_router_1, 1, 0);
-    network.setup_connection(wifi_router, global_router_2, 1, 0);
+    network.setup_connection(wifi_router, global_router_2, 2, 0);
 
     network.setup_connection(dns_server, global_router_1, 0, 1);
     network.setup_connection(web_server, global_router_2, 0, 1);
 
     console.log(network);
+
+    var network_view = new NetworkRenderer(network);
+    console.log(network_view);
 }
+
+
+class NetworkRenderer {
+    constructor(network) {
+        this.render_network(network);
+
+        $(window).on('resize', () => this.render_network());
+    }
+
+    set_render_data(network) {
+        this.network = network;
+        this.clients = network.get_devices().filter(function (element) {
+            return element.get_type() == "c";
+        });
+        this.routers = network.get_devices().filter(function (element) {
+            return element.get_type() == "r";
+        });
+        this.servers = network.get_devices().filter(function (element) {
+            return element.get_type() == "s";
+        });
+    }
+
+    resize_canvas() {
+        $canvas.removeLayers();
+
+        this.width = network_canvas.offsetWidth;
+        this.height = network_canvas.offsetHeight;
+
+        network_canvas.setAttribute('width', this.width);
+        network_canvas.setAttribute('height', this.height);
+
+        this.x_c = this.width / 2;
+        this.y_c = this.height / 2;
+    }
+
+    render_network(network = null) {
+        this.network = (network == null) ? this.network : network;
+
+        this.set_render_data(this.network);
+        this.resize_canvas();
+
+        for (var client in this.clients) {
+            this.render_client(this.clients[client], this.clients.length, client);
+        }
+    }
+
+    render_client(client, amount, index) {
+        var sliced_height = this.height / amount;
+        var center_height = sliced_height / 2;
+
+        var sliced_width = this.width / 2;
+        var center_width = sliced_width / 2;
+
+        var x = center_width;
+        var y = sliced_height * index + center_height;
+
+        var font = "12pt";
+        var name = client.name;
+        var index = client.index;
+
+        $canvas
+            .addLayer({
+                type: 'image', source: 'img/client.png',
+                groups: [index],
+                name: 'client_image' + index, layer: true,
+                x: x, y: y,
+                width: 100, height: 100, fromCenter: true,
+                shadowColor: '#222', shadowBlur: 3,
+                rotate: 0,
+                data: client,
+                cursors: {
+                    mouseover: 'pointer',
+                    mousedown: 'pointer',
+                    mouseup: 'pointer'
+                },
+                click: function (layer) {
+                    console.log(layer);
+                }.bind(this)
+            })
+            .addLayer({
+                type: 'text',
+                groups: [index],
+                name: 'client_name' + index,
+                layer: true,
+                fillStyle: '#bcc5e4',
+                strokeWidth: 1,
+                x: x, y: y + 73,
+                fontSize: font, fontFamily: 'Solway, serif',
+                text: name
+            })
+            .addLayer({
+                type: 'rectangle',
+                groups: [index],
+                name: 'client_name_box' + index,
+                fillStyle: '#556080',
+                x: x, y: y + 73,
+                index: -1,
+                width: $canvas.measureText('client_name' + index).width * 1.3, height: 22, fromCenter: true,
+                shadowColor: '#222', shadowBlur: 3,
+            })
+            .drawLayers();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class Network {
     constructor(name) {
         this.name = name;
         this.devices = [];
+        this.links = [];
+
         this.ip_list = [];
         this.mac_list = [];
+    }
+
+    get_devices() {
+        return this.devices;
     }
 
     generate_ip() {
@@ -57,6 +189,8 @@ class Network {
         while (this.ip_list.indexOf(ip_address) != -1) {
             ip_address = (Math.floor(Math.random() * 255) + 1) + "." + (Math.floor(Math.random() * 255) + 0) + "." + (Math.floor(Math.random() * 255) + 0) + "." + (Math.floor(Math.random() * 255) + 0);
         }
+
+        this.ip_list.push(ip_address);
 
         return ip_address;
     }
@@ -72,38 +206,64 @@ class Network {
             });
         }
 
+        this.mac_list.push(mac_address);
+
         return mac_address;
     }
 
     add_client(name) {
-        return this.devices[this.devices.push(new Device(name, "c", this.generate_mac(), this.generate_ip())) - 1];
+        return this.devices[this.devices.push(new Device(name, this.devices.length, "c", this.generate_mac(), this.generate_ip())) - 1];
     }
 
     add_router(name) {
-        return this.devices[this.devices.push(new Device(name, "r", this.generate_mac(), this.generate_ip())) - 1];
+        return this.devices[this.devices.push(new Device(name, this.devices.length, "r", this.generate_mac(), this.generate_ip())) - 1];
     }
 
     add_server(name) {
-        return this.devices[this.devices.push(new Device(name, "s", this.generate_mac(), this.generate_ip())) - 1];
+        return this.devices[this.devices.push(new Device(name, this.devices.length, "s", this.generate_mac(), this.generate_ip())) - 1];
     }
 
-    setup_connection(device_1, device_2) {
+    add_link(interface_1, interface_2) {
+        this.links.push({
+            i1_ip: interface_1.ip_address,
+            i1_mac: interface_1.mac_address,
+            i2_ip: interface_2.ip_address,
+            i2_mac: interface_2.mac_address
+        });
+    }
 
+    setup_connection(device_1, device_2, interface_id_1, interface_id_2) {
+        var interface_1 = device_1.interfaces[interface_id_1];
+        var interface_2 = device_2.interfaces[interface_id_2];
+
+        device_1.add_connection(interface_2, interface_id_1);
+        device_2.add_connection(interface_1, interface_id_2);
+
+        this.add_link(interface_1, interface_2);
     }
 }
 
 class Device {
-    constructor(name, type, mac_address, ip_address = null) {
+    constructor(name, index, type, mac_address, ip_address) {
         this.name = name;
+        this.index = index;
         this.type = type;
         this.interfaces = [];
-        this.forwarding_table = [];
+        this.forwarding_table = {};
 
         this.add_interface(mac_address, ip_address);
     }
 
+    get_type() {
+        return this.type;
+    }
+
     add_interface(mac_address, ip_address) {
         this.interfaces.push(new Interface(this.interfaces.length, mac_address, ip_address));
+    }
+
+    add_connection(interface_object, interface_id) {
+        this.forwarding_table[interface_object.ip_address] = interface_id;
     }
 }
 
@@ -114,14 +274,43 @@ class Interface {
         this.mac_address = mac_address;
     }
 
+    get_ip_address() {
+        return this.ip_address;
+    }
+
     get_mac_address() {
         return this.mac_address;
     }
+}
 
-    setup_connection() {
-
+function toggle_toolbar(toggle) {
+    if (toggle) {
+        open_window_toggle.hide();
+        close_window_toggle.show();
+        hop_window_content.slideDown();
+    } else {
+        open_window_toggle.show();
+        close_window_toggle.hide();
+        hop_window_content.slideUp();
     }
 }
+
+function copy_array_1d(arr1) {
+    return arr1.slice();
+}
+
+function copy_array_2d(arr1) {
+    return arr1.map(x => x.slice()).slice();
+}
+
+function copy_object(obj1) {
+    var obj3 = {};
+    for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+    return obj3;
+}
+
+start_application();
+toggle_toolbar(false);
 
 
 
@@ -516,8 +705,6 @@ class Server {
     }
 }
 
-start_application();
-toggle_toolbar(false);
 
 
 
@@ -540,30 +727,3 @@ toggle_toolbar(false);
 
 
 
-
-
-function toggle_toolbar(toggle) {
-    if (toggle) {
-        open_window_toggle.hide();
-        close_window_toggle.show();
-        hop_window_content.slideDown();
-    } else {
-        open_window_toggle.show();
-        close_window_toggle.hide();
-        hop_window_content.slideUp();
-    }
-}
-
-function copy_array_1d(arr1) {
-    return arr1.slice();
-}
-
-function copy_array_2d(arr1) {
-    return arr1.map(x => x.slice()).slice();
-}
-
-function copy_object(obj1) {
-    var obj3 = {};
-    for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-    return obj3;
-}
