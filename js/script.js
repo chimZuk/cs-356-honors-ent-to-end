@@ -43,10 +43,10 @@ function start_application() {
 
     network.setup_connection(web_server, global_router_3, 0, 1);
 
-    console.log(network);
+    //console.log(network);
 
     var network_view = new NetworkRenderer(network);
-    console.log(network_view);
+    //console.log(network_view);
 }
 
 
@@ -82,19 +82,19 @@ class NetworkRenderer {
             }
         }
 
-        for (var node in this.network.links_graph) {
+        /*for (var node in this.network.links_graph) {
             var temp_node = this.network.links_graph[node];
 
             var data = this.network.get_device_by_ip_address(node);
             console.log(data.device.name + ": " + data.interface_d.id, temp_node.map(function (x) {
                 return this.network.get_device_by_ip_address(x).device.name + ": " + this.network.get_device_by_ip_address(x).interface_d.id;
             }.bind(this)));
-        }
+        }*/
 
         let longest_path = this.get_longest_path(this.network.links_graph);
     }
 
-    get_longest_path(nodes) {
+    get_longest_pathh(nodes) {
         var result = [0, null];
         var pre_result;
 
@@ -130,7 +130,7 @@ class NetworkRenderer {
             for (var i in this.network.links_graph[t]) {
                 var v = this.network.links_graph[t][i];
                 console.log(this.network.get_device_by_ip_address(v).device.name + ": " + this.network.get_device_by_ip_address(v).interface_d.id + ": " + dis[v])
-                
+
                 if (dis[v] == -1) {
                     q.push(v);
                     dis[v] = dis[t] + 1;
@@ -153,26 +153,50 @@ class NetworkRenderer {
     }
 
 
+    get_longest_path(nodes) {
+        var max_length = 0;
+        var current_length = 0;
+        var visited = [];
 
-    get_longest_path_helper(nodes, visited, current_length, max_length) {
-        if (current_length > max_length) {
-            max_length = current_length;
-            console.log(current_length);
-            console.log(visited.map(function (x) {
-                return this.network.get_device_by_ip_address(x).device.name + ": " + this.network.get_device_by_ip_address(x).interface_d.id;
-            }.bind(this)));
-        }
+        for (var current_node in nodes) {
+            var temp_length = this.get_longest_path_helper(current_node, nodes[current_node], copy_array_1d(visited), current_length);
 
-        for (var node in nodes) {
-            var temp_node = this.network.links_graph[nodes[node]];
-
-            if (visited.indexOf(nodes[node]) == -1) {
-                visited.push(nodes[node]);
-                max_length = this.get_longest_path_helper(temp_node, copy_array_1d(visited), current_length + 1, max_length);
+            console.log(this.network.get_device_by_ip_address(current_node).device.name + ": " + this.network.get_device_by_ip_address(current_node).interface_d.id, temp_length);
+            console.log("=========================================================")
+            if (temp_length > max_length) {
+                max_length = temp_length;
             }
         }
+        console.log(max_length);
 
-        return max_length;
+        /*console.log(current_length);
+            console.log(visited.map(function (x) {
+                return this.network.get_device_by_ip_address(x).device.name + ": " + this.network.get_device_by_ip_address(x).interface_d.id;
+            }.bind(this)));*/
+    }
+
+
+    get_longest_path_helper(prev_node, nodes, visited, current_length) {
+        var max_length = 0;
+        visited.push(prev_node);
+        current_length++;
+        console.log(this.network.get_device_by_ip_address(prev_node).device.name + ": " + this.network.get_device_by_ip_address(prev_node).interface_d.id, "++++++++++++++++++++++++++")
+        for (var node in nodes) {
+            var temp_length = 0;
+
+            if (visited.indexOf(nodes[node]) == -1) {
+                console.log(this.network.get_device_by_ip_address(nodes[node]).device.name + ": " + this.network.get_device_by_ip_address(nodes[node]).interface_d.id, current_length);
+                temp_length = this.get_longest_path_helper(nodes[node], this.network.links_graph[nodes[node]], copy_array_1d(visited), current_length, max_length);
+            }
+
+            if (temp_length > max_length) {
+                max_length = temp_length;
+            }
+        }
+        console.log(this.network.get_device_by_ip_address(prev_node).device.name + ": " + this.network.get_device_by_ip_address(prev_node).interface_d.id, "+_+_+_+_+_+_+_+_+_+_+_+_+")
+
+
+        return max_length + 1;
     }
 
 
