@@ -23,17 +23,24 @@ function start_application() {
 }
 
 class ApplicationView {
-    constructor(data) {
-        this.temp_network = {};
-        this.links = [];
-        this.render_network(data);
+    constructor(network) {
+        this.network = network;
 
-        //$(window).on('resize', () => this.render_network(this.temp_network));
+        this.links = [];
+        this.clients = [];
+        this.routers = [];
+
+        this.resize_canvas(false);
+
+        $(window).on('resize', () => this.resize_canvas(true));
     }
 
-    resize_canvas() {
+    resize_canvas(update = false) {
         $canvas.removeLayers();
+
         this.links = [];
+        this.clients = [];
+        this.routers = [];
 
         this.width = network_canvas.offsetWidth;
         this.height = network_canvas.offsetHeight;
@@ -41,8 +48,23 @@ class ApplicationView {
         network_canvas.setAttribute('height', this.height);
 
         this.margin = 70;
+
         this.x_c = this.width / 2;
         this.y_c = (this.height - this.margin) / 2;
+
+        if (update) {
+            this.render_network();
+        }
+    }
+
+    set_network(network = this.network) {
+        this.network = network;
+
+        for (var i in network.subnetworks) {
+            var temp_subnetwork = network.subnetworks[i];
+
+            var router_link = this.set_router(temp_subnetwork.router);
+        }
     }
 
     render_network(network) {
@@ -51,7 +73,6 @@ class ApplicationView {
         for (var i in network.subnetworks) {
             var temp_subnetwork = network.subnetworks[i];
 
-            var router_link = this.render_router(temp_subnetwork.router);
 
             for (var j in temp_subnetwork.devices) {
                 var temp_device = temp_subnetwork.devices[j];
@@ -69,14 +90,17 @@ class ApplicationView {
 
     render_links(link) {
         console.log("link");
-        $canvas.drawLine({
-            strokeStyle: 'black',
-            strokeWidth: 10,
-            rounded: true,
-            x1: link[2], y1: link[3],
-            x2: link[0], y2: link[1],
-            shadowColor: '#222', shadowBlur: 3
-        });
+        $canvas
+            .addLayer({
+                type: 'line',
+                strokeStyle: '#556080',
+                strokeWidth: 5,
+                rounded: true,
+                x1: link[2], y1: link[3],
+                x2: link[0], y2: link[1],
+                shadowColor: '#222', shadowBlur: 3,
+                index: -1
+            });
     }
 
     render_router(router) {
@@ -247,7 +271,7 @@ class Subnetwork {
         this.ip_range = null;
         this.existing_ip = [];
         this.existing_ip_count = 1;
-        this.router = new Router("Default Router");
+        this.router = new Router("Default Router").assign_ip_address(this.generate_ip_address());
     }
 
     set_ip_range(ip_range) {
@@ -296,6 +320,35 @@ class Client {
     }
 }
 
+class Router {
+    constructor(name) {
+        this.name = name;
+        this.interfaces = [];
+        this.forwarding_table = new ForwardingTable();
+        this.add_interface("Network Adapter", true);
+    }
+
+    add_interface(name, is_default = false) {
+        this.interfaces.push(new Interface(this.name + ": " + name));
+        this.default_interface = (is_default) ? this.interfaces.length - 1 : this.default_interface;
+    }
+
+    assign_ip_address(ip) {
+        this.interfaces[this.default_interface].add_ip(ip);
+        return this;
+    }
+}
+
+class ForwardingTable {
+    constructor() {
+        this.ip_table = {};
+    }
+
+    add_ip_forwarding(ip_range, network_interface) {
+        this.ip_table[ip_range] = network_interface;
+    }
+}
+
 class Interface {
     constructor(name) {
         this.name = name;
@@ -319,24 +372,6 @@ class Interface {
 class Server {
     constructor(name) {
         this.name = name;
-    }
-}
-
-class Router {
-    constructor(name) {
-        this.name = name;
-        this.interfaces = [];
-        this.forwarding_table = new ForwardingTable();
-    }
-}
-
-class ForwardingTable {
-    constructor() {
-        this.ip_table = {};
-    }
-
-    add_ip_forwarding(ip_range, network_interface) {
-        this.ip_table[ip_range] = network_interface;
     }
 }
 
