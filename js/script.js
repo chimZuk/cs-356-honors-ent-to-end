@@ -7,7 +7,170 @@ var $canvas = $("#network-canvas");
 var network_canvas = $("#network-canvas")[0];
 var network_canvas_context = network_canvas.getContext('2d');
 
+
+
+
 function start_application() {
+    let network = new Network("Internet");
+
+    var wifi_router = network.add_router("WiFi Router");
+    wifi_router.add_interface(network.generate_mac(), network.generate_ip());
+    wifi_router.add_interface(network.generate_mac(), network.generate_ip());
+
+    var global_router_1 = network.add_router("Global Router 1");
+    global_router_1.add_interface(network.generate_mac(), network.generate_ip());
+
+    var global_router_2 = network.add_router("Global Router 2");
+    global_router_2.add_interface(network.generate_mac(), network.generate_ip());
+
+    var laptop = network.add_client("Yoga 920");
+    var phone_1 = network.add_client("Samsung Galaxy S9");
+    var phone_2 = network.add_client("iPhone 7");
+
+    var dns_server = network.add_server("DNS Server");
+    var web_server = network.add_server("Web Server");
+
+    network.setup_connection(laptop, wifi_router, 0, 0);
+    network.setup_connection(phone_1, wifi_router, 0, 0);
+    network.setup_connection(phone_2, wifi_router, 0, 0);
+
+    network.setup_connection(wifi_router, global_router_1, 1, 0);
+    network.setup_connection(wifi_router, global_router_2, 1, 0);
+
+    network.setup_connection(dns_server, global_router_1, 0, 1);
+    network.setup_connection(web_server, global_router_2, 0, 1);
+
+    console.log(network);
+}
+
+class Network {
+    constructor(name) {
+        this.name = name;
+        this.devices = [];
+        this.ip_list = [];
+        this.mac_list = [];
+    }
+
+    generate_ip() {
+        let ip_address = (Math.floor(Math.random() * 255) + 1) + "." + (Math.floor(Math.random() * 255) + 0) + "." + (Math.floor(Math.random() * 255) + 0) + "." + (Math.floor(Math.random() * 255) + 0);
+
+        while (this.ip_list.indexOf(ip_address) != -1) {
+            ip_address = (Math.floor(Math.random() * 255) + 1) + "." + (Math.floor(Math.random() * 255) + 0) + "." + (Math.floor(Math.random() * 255) + 0) + "." + (Math.floor(Math.random() * 255) + 0);
+        }
+
+        return ip_address;
+    }
+
+    generate_mac() {
+        let mac_address = "XX:XX:XX:XX:XX:XX".replace(/X/g, function () {
+            return "0123456789ABCDEF".charAt(Math.floor(Math.random() * 16))
+        });
+
+        while (this.mac_list.indexOf(mac_address) != -1) {
+            mac_address = "XX:XX:XX:XX:XX:XX".replace(/X/g, function () {
+                return "0123456789ABCDEF".charAt(Math.floor(Math.random() * 16))
+            });
+        }
+
+        return mac_address;
+    }
+
+    add_client(name) {
+        return this.devices[this.devices.push(new Device(name, "c", this.generate_mac(), this.generate_ip())) - 1];
+    }
+
+    add_router(name) {
+        return this.devices[this.devices.push(new Device(name, "r", this.generate_mac(), this.generate_ip())) - 1];
+    }
+
+    add_server(name) {
+        return this.devices[this.devices.push(new Device(name, "s", this.generate_mac(), this.generate_ip())) - 1];
+    }
+
+    setup_connection(device_1, device_2) {
+
+    }
+}
+
+class Device {
+    constructor(name, type, mac_address, ip_address = null) {
+        this.name = name;
+        this.type = type;
+        this.interfaces = [];
+        this.forwarding_table = [];
+
+        this.add_interface(mac_address, ip_address);
+    }
+
+    add_interface(mac_address, ip_address) {
+        this.interfaces.push(new Interface(this.interfaces.length, mac_address, ip_address));
+    }
+}
+
+class Interface {
+    constructor(id, mac_address, ip_address) {
+        this.id = id;
+        this.ip_address = (ip_address == null) ? "" : ip_address;
+        this.mac_address = mac_address;
+    }
+
+    get_mac_address() {
+        return this.mac_address;
+    }
+
+    setup_connection() {
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function start_applicationn() {
     var global_network = new Network("Global Network");
     var home_subnetwork = new Subnetwork("Home Network");
 
@@ -242,28 +405,6 @@ class ApplicationView {
     }
 }
 
-class Network {
-    constructor(name) {
-        this.name = name;
-        this.routers = [];
-        this.subnetworks = [];
-        this.servers = [];
-        this.ip_range = 1;
-    }
-
-    add_router() {
-
-    }
-
-    add_server() {
-
-    }
-
-    add_subnetwork(subnetwork) {
-        this.subnetworks.push(subnetwork.set_ip_range(this.ip_range++));
-    }
-}
-
 class Subnetwork {
     constructor(name) {
         this.name = name;
@@ -300,7 +441,7 @@ class Subnetwork {
     }
 }
 
-class Client {
+class Clientt {
     constructor(name) {
         this.name = name;
         this.interfaces = [];
@@ -320,7 +461,7 @@ class Client {
     }
 }
 
-class Router {
+class Routerr {
     constructor(name) {
         this.name = name;
         this.interfaces = [];
@@ -349,7 +490,7 @@ class ForwardingTable {
     }
 }
 
-class Interface {
+class Interfacee {
     constructor(name) {
         this.name = name;
         this.mask = 24;
