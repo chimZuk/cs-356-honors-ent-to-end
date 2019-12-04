@@ -45,6 +45,27 @@ function remove_device() {
 //---- End of Adding/Removing devices
 
 
+//---- Adding/Removing interfaces
+
+var interface_add_status;
+
+var interface_remove_status;
+
+function add_interface(device, is_initial) {
+
+}
+
+function remove_interface(data, is_initial) {
+    interface_remove_status = (is_initial) ? 0 : interface_remove_status + 1;
+
+    if (interface_remove_status == 1) {
+        
+    }
+}
+
+//---- End of Adding/Removing interfaces
+
+
 //---- Adding/Removing connections
 
 var connection_add_status;
