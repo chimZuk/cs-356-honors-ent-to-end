@@ -290,9 +290,6 @@ class Network {
     setup_connection(device_1, device_2, interface_id_1, interface_id_2) {
         var interface_1 = device_1.interfaces[interface_id_1];
         var interface_2 = device_2.interfaces[interface_id_2];
-        device_1.add_connection(interface_2, interface_id_1);
-        device_2.add_connection(interface_1, interface_id_2);
-
         this.add_link(interface_1, device_1, interface_2, device_2);
     }
 
@@ -323,7 +320,6 @@ class Device {
         this.index = index;
         this.type = type;
         this.interfaces = [];
-        this.forwarding_table = {};
     }
 
     get_type() {
@@ -336,10 +332,6 @@ class Device {
 
     add_existing_interface(id, mac_address, ip_address) {
         this.interfaces.push(new Interface(id, mac_address, ip_address));
-    }
-
-    add_connection(interface_object, interface_id) {
-        this.forwarding_table[interface_object.ip_address] = interface_id;
     }
 }
 
