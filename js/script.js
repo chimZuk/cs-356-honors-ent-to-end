@@ -7,7 +7,9 @@ var $canvas = $("#network-canvas");
 var network_canvas = $("#network-canvas")[0];
 var network_canvas_context = network_canvas.getContext('2d');
 
-var app_data = JSON.parse(`{"name":"Internet","devices":[{"coordinates":[291,207],"name":"WiFi Router","type":"r","interfaces":[{"id":0,"ip_address":"164.79.205.147","mac_address":"6A:07:5F:34:EF:C6","side":-1},{"id":1,"ip_address":"224.158.208.55","mac_address":"82:C2:ED:7E:CF:FF","side":1},{"id":2,"ip_address":"42.103.183.108","mac_address":"BE:18:19:20:1B:63","side":1}],"id":0,"id_count":2},{"coordinates":[486,101],"name":"Global Router 1","type":"r","interfaces":[{"id":0,"ip_address":"96.175.199.7","mac_address":"FC:28:26:98:C5:52","side":-1},{"id":1,"ip_address":"226.66.149.205","mac_address":"F7:40:46:E2:85:8D","side":1}],"id":1,"id_count":1},{"coordinates":[493,311],"name":"Global Router 2","type":"r","interfaces":[{"id":0,"ip_address":"217.15.68.179","mac_address":"E9:9D:29:EE:17:98","side":-1},{"id":1,"ip_address":"235.25.235.55","mac_address":"81:2F:5F:0A:13:DA","side":1}],"id":2,"id_count":1},{"coordinates":[720,367],"name":"Global Router 3","type":"r","interfaces":[{"id":0,"ip_address":"112.70.136.55","mac_address":"91:CE:CB:0D:D4:B9","side":-1},{"id":1,"ip_address":"191.118.172.102","mac_address":"C1:CA:14:B9:A3:49","side":1}],"id":3,"id_count":1},{"coordinates":[113,311],"name":"Yoga 920","type":"c","interfaces":[{"id":0,"ip_address":"48.31.169.123","mac_address":"D3:3D:5E:35:BE:BC","side":1}],"id":4,"id_count":0},{"coordinates":[103,111],"name":"Samsung Galaxy S9","type":"c","interfaces":[{"id":0,"ip_address":"145.74.21.64","mac_address":"55:80:65:C1:9A:D1","side":1}],"id":5,"id_count":0},{"coordinates":[724,99],"name":"DNS Server","type":"s","interfaces":[{"id":0,"ip_address":"226.96.151.15","mac_address":"DC:6F:79:3C:6F:3A","side":-1}],"id":6,"id_count":0},{"coordinates":[974,370],"name":"Web Server","type":"s","interfaces":[{"id":0,"ip_address":"75.178.145.158","mac_address":"05:32:E3:2D:AA:E5","side":-1}],"id":7,"id_count":0}],"links":[{"id":8,"device_1":{"dev":4,"type":"client","int":0,"ip":"48.31.169.123","mac":"D3:3D:5E:35:BE:BC"},"device_2":{"dev":0,"type":"router","int":0,"ip":"164.79.205.147","mac":"6A:07:5F:34:EF:C6"}},{"id":9,"device_1":{"dev":5,"type":"client","int":0,"ip":"145.74.21.64","mac":"55:80:65:C1:9A:D1"},"device_2":{"dev":0,"type":"router","int":0,"ip":"164.79.205.147","mac":"6A:07:5F:34:EF:C6"}},{"id":10,"device_1":{"dev":0,"type":"router","int":1,"ip":"224.158.208.55","mac":"82:C2:ED:7E:CF:FF"},"device_2":{"dev":1,"type":"router","int":0,"ip":"96.175.199.7","mac":"FC:28:26:98:C5:52"}},{"id":11,"device_1":{"dev":0,"type":"router","int":2,"ip":"42.103.183.108","mac":"BE:18:19:20:1B:63"},"device_2":{"dev":2,"type":"router","int":0,"ip":"217.15.68.179","mac":"E9:9D:29:EE:17:98"}},{"id":12,"device_1":{"dev":6,"type":"server","int":0,"ip":"226.96.151.15","mac":"DC:6F:79:3C:6F:3A"},"device_2":{"dev":1,"type":"router","int":1,"ip":"226.66.149.205","mac":"F7:40:46:E2:85:8D"}},{"id":13,"device_1":{"dev":2,"type":"router","int":1,"ip":"235.25.235.55","mac":"81:2F:5F:0A:13:DA"},"device_2":{"dev":3,"type":"router","int":0,"ip":"112.70.136.55","mac":"91:CE:CB:0D:D4:B9"}},{"id":14,"device_1":{"dev":7,"type":"server","int":0,"ip":"75.178.145.158","mac":"05:32:E3:2D:AA:E5"},"device_2":{"dev":3,"type":"router","int":1,"ip":"191.118.172.102","mac":"C1:CA:14:B9:A3:49"}}],"ip_list":["164.79.205.147","224.158.208.55","42.103.183.108","96.175.199.7","226.66.149.205","217.15.68.179","235.25.235.55","112.70.136.55","191.118.172.102","48.31.169.123","145.74.21.64","226.96.151.15","75.178.145.158"],"mac_list":["6A:07:5F:34:EF:C6","82:C2:ED:7E:CF:FF","BE:18:19:20:1B:63","FC:28:26:98:C5:52","F7:40:46:E2:85:8D","E9:9D:29:EE:17:98","81:2F:5F:0A:13:DA","91:CE:CB:0D:D4:B9","C1:CA:14:B9:A3:49","D3:3D:5E:35:BE:BC","55:80:65:C1:9A:D1","DC:6F:79:3C:6F:3A","05:32:E3:2D:AA:E5"],"id_count":14}`);
+
+var app_data = JSON.parse(`{"name":"Internet","devices":[{"coordinates":[260,260],"name":"WiFi Router","type":"r","interfaces":[{"id":0,"ip_address":"164.79.205.147","mac_address":"6A:07:5F:34:EF:C6","side":-1},{"id":1,"ip_address":"224.158.208.55","mac_address":"82:C2:ED:7E:CF:FF","side":1},{"id":2,"ip_address":"42.103.183.108","mac_address":"BE:18:19:20:1B:63","side":1}],"id":0,"id_count":2},{"coordinates":[640,140],"name":"Global Router 1","type":"r","interfaces":[{"id":0,"ip_address":"96.175.199.7","mac_address":"FC:28:26:98:C5:52","side":-1},{"id":1,"ip_address":"226.66.149.205","mac_address":"F7:40:46:E2:85:8D","side":1}],"id":1,"id_count":1},{"coordinates":[420,380],"name":"Global Router 2","type":"r","interfaces":[{"id":0,"ip_address":"217.15.68.179","mac_address":"E9:9D:29:EE:17:98","side":-1},{"id":1,"ip_address":"235.25.235.55","mac_address":"81:2F:5F:0A:13:DA","side":1},{"id":2,"ip_address":"133.74.11.2","mac_address":"46:A3:35:08:7A:A2","side":1}],"id":2,"id_count":2},{"coordinates":[640,300],"name":"Global Router 3","type":"r","interfaces":[{"id":0,"ip_address":"112.70.136.55","mac_address":"91:CE:CB:0D:D4:B9","side":-1},{"id":1,"ip_address":"191.118.172.102","mac_address":"C1:CA:14:B9:A3:49","side":1}],"id":3,"id_count":1},{"coordinates":[100,380],"name":"Yoga 920","type":"c","interfaces":[{"id":0,"ip_address":"48.31.169.123","mac_address":"D3:3D:5E:35:BE:BC","side":1}],"id":4,"id_count":0},{"coordinates":[100,140],"name":"Samsung Galaxy S9","type":"c","interfaces":[{"id":0,"ip_address":"145.74.21.64","mac_address":"55:80:65:C1:9A:D1","side":1}],"id":5,"id_count":0},{"coordinates":[860,140],"name":"DNS Server","type":"s","interfaces":[{"id":0,"ip_address":"226.96.151.15","mac_address":"DC:6F:79:3C:6F:3A","side":-1}],"id":6,"id_count":0},{"coordinates":[860,300],"name":"Web Server","type":"s","interfaces":[{"id":0,"ip_address":"75.178.145.158","mac_address":"05:32:E3:2D:AA:E5","side":-1}],"id":7,"id_count":0},{"coordinates":[640,460],"name":"Global Router 4","type":"r","interfaces":[{"id":0,"ip_address":"226.3.15.86","mac_address":"4A:C4:A7:84:75:CF","side":-1},{"id":1,"ip_address":"116.113.43.82","mac_address":"AE:F9:C6:81:58:3E","side":1}],"id":15,"id_count":1},{"coordinates":[860,460],"name":"Gaming Server","type":"s","interfaces":[{"id":0,"ip_address":"28.187.46.243","mac_address":"2C:34:A4:E7:CF:66","side":-1}],"id":17,"id_count":0}],"links":[{"id":8,"device_1":{"dev":4,"type":"client","int":0,"ip":"48.31.169.123","mac":"D3:3D:5E:35:BE:BC"},"device_2":{"dev":0,"type":"router","int":0,"ip":"164.79.205.147","mac":"6A:07:5F:34:EF:C6"}},{"id":9,"device_1":{"dev":5,"type":"client","int":0,"ip":"145.74.21.64","mac":"55:80:65:C1:9A:D1"},"device_2":{"dev":0,"type":"router","int":0,"ip":"164.79.205.147","mac":"6A:07:5F:34:EF:C6"}},{"id":10,"device_1":{"dev":0,"type":"router","int":1,"ip":"224.158.208.55","mac":"82:C2:ED:7E:CF:FF"},"device_2":{"dev":1,"type":"router","int":0,"ip":"96.175.199.7","mac":"FC:28:26:98:C5:52"}},{"id":11,"device_1":{"dev":0,"type":"router","int":2,"ip":"42.103.183.108","mac":"BE:18:19:20:1B:63"},"device_2":{"dev":2,"type":"router","int":0,"ip":"217.15.68.179","mac":"E9:9D:29:EE:17:98"}},{"id":12,"device_1":{"dev":6,"type":"server","int":0,"ip":"226.96.151.15","mac":"DC:6F:79:3C:6F:3A"},"device_2":{"dev":1,"type":"router","int":1,"ip":"226.66.149.205","mac":"F7:40:46:E2:85:8D"}},{"id":13,"device_1":{"dev":2,"type":"router","int":1,"ip":"235.25.235.55","mac":"81:2F:5F:0A:13:DA"},"device_2":{"dev":3,"type":"router","int":0,"ip":"112.70.136.55","mac":"91:CE:CB:0D:D4:B9"}},{"id":14,"device_1":{"dev":7,"type":"server","int":0,"ip":"75.178.145.158","mac":"05:32:E3:2D:AA:E5"},"device_2":{"dev":3,"type":"router","int":1,"ip":"191.118.172.102","mac":"C1:CA:14:B9:A3:49"}},{"id":16,"device_1":{"dev":2,"type":"router","int":2,"ip":"133.74.11.2","mac":"46:A3:35:08:7A:A2"},"device_2":{"dev":15,"type":"router","int":0,"ip":"226.3.15.86","mac":"4A:C4:A7:84:75:CF"}},{"id":18,"device_1":{"dev":15,"type":"router","int":1,"ip":"116.113.43.82","mac":"AE:F9:C6:81:58:3E"},"device_2":{"dev":17,"type":"server","int":0,"ip":"28.187.46.243","mac":"2C:34:A4:E7:CF:66"}}],"ip_list":["164.79.205.147","224.158.208.55","42.103.183.108","96.175.199.7","226.66.149.205","217.15.68.179","235.25.235.55","112.70.136.55","191.118.172.102","48.31.169.123","145.74.21.64","226.96.151.15","75.178.145.158","133.74.11.2","226.3.15.86","116.113.43.82","28.187.46.243"],"mac_list":["6A:07:5F:34:EF:C6","82:C2:ED:7E:CF:FF","BE:18:19:20:1B:63","FC:28:26:98:C5:52","F7:40:46:E2:85:8D","E9:9D:29:EE:17:98","81:2F:5F:0A:13:DA","91:CE:CB:0D:D4:B9","C1:CA:14:B9:A3:49","D3:3D:5E:35:BE:BC","55:80:65:C1:9A:D1","DC:6F:79:3C:6F:3A","05:32:E3:2D:AA:E5","46:A3:35:08:7A:A2","4A:C4:A7:84:75:CF","AE:F9:C6:81:58:3E","2C:34:A4:E7:CF:66"],"id_count":18}`);
+
 var global_network;
 var global_network_view;
 
@@ -410,7 +412,6 @@ class Device {
 
 class Interface {
     constructor(id, mac_address, ip_address, side) {
-        console.log(side);
         this.id = id;
         this.ip_address = (ip_address == null) ? "" : ip_address;
         this.mac_address = mac_address;
@@ -527,6 +528,14 @@ class NetworkRenderer {
                 this.render_links();
             }.bind(this),
 
+            updateDragX: function (layer, x) {
+                return nearest(x);
+            },
+
+            updateDragY: function (layer, y) {
+                return nearest(y);
+            },
+
             click: function (layer) {
                 var side = (layer.x - layer.eventX > 0) ? -1 : 1;
 
@@ -576,7 +585,7 @@ class NetworkRenderer {
 
             $canvas.addLayer({
                 type: 'rectangle', layer: true,
-                name: 'interface_box_' + id + '_' + temp_interface.id, groups: [id, 'common'], dragGroups: [id], data: { device: data, interface: temp_interface.id },
+                name: 'interface_box_' + id + '_' + temp_interface.id, groups: [id, 'common'], dragGroups: [id], data: { device: data, interface_data: temp_interface, interface: temp_interface.id },
                 x: x + side * 48, y: y + y_i, width: 20, height: 20, fromCenter: true, index: 6,
                 fillStyle: '#556080', shadowColor: '#222', shadowBlur: 3,
                 cursors: { mouseover: 'pointer', mousedown: 'pointer', mouseup: 'pointer' },
@@ -585,12 +594,45 @@ class NetworkRenderer {
                     $canvas.setLayer(layer, {
                         fillStyle: '#bcc5e4'
                     });
+
+                    $canvas.addLayer({
+                        type: 'text', text: layer.data.interface_data.mac_address, layer: true,
+                        name: 'popup_' + layer.data.interface_data.id, groups: ['common', 'popup'],
+                        x: layer.x, y: layer.y - 30, fromCenter: true,
+                        fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+                    });
+
+                    $canvas.addLayer({
+                        type: 'rectangle', layer: true,
+                        name: 'popup_body_' + layer.data.interface_data.id, groups: ['common', 'popup'],
+                        x: layer.x, y: layer.y - 30, width: $canvas.measureText('popup_' + layer.data.interface_data.id).width * 1.3, height: 22, fromCenter: true, index: -1,
+                        fillStyle: '#556080', shadowColor: '#222', shadowBlur: 3
+                    });
+
+                    $canvas.addLayer({
+                        type: 'text', text: layer.data.interface_data.ip_address, layer: true,
+                        name: 'popup_1_' + layer.data.interface_data.id, groups: ['popup'],
+                        x: layer.x, y: layer.y - 55, fromCenter: true,
+                        fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+                    });
+
+                    $canvas.addLayer({
+                        type: 'rectangle', layer: true,
+                        name: 'popup_1_body_' + layer.data.interface_data.id, groups: ['common', 'popup'],
+                        x: layer.x, y: layer.y - 55, width: $canvas.measureText('popup_1_' + layer.data.interface_data.id).width * 1.3, height: 22, fromCenter: true, index: -1,
+                        fillStyle: '#556080', shadowColor: '#222', shadowBlur: 3
+                    });
+
+                    $canvas.drawLayers();
                 }.bind(this),
 
                 mouseout: function (layer) {
                     $canvas.setLayer(layer, {
                         fillStyle: '#556080'
                     });
+
+                    $canvas.removeLayerGroup('popup');
+                    $canvas.drawLayers();
                 }.bind(this),
 
                 click: function (layer) {
@@ -604,6 +646,10 @@ class NetworkRenderer {
             });
         }
     }
+}
+
+function nearest(value) {
+    return Math.round(value / 20) * 20;
 }
 
 function save_data() {

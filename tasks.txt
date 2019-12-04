@@ -1,0 +1,5 @@
+0. Add subnets functionality
+1. Forwarding tables
+2. Hops functionality
+3. Online web server
+4. DNS functionality
