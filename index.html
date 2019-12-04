@@ -15,18 +15,45 @@
 
         <div class="hops-window shadow" id="hops-window">
             <div class="hops-toolbar shadow">
-                <div class="hop-status" id="hop-status">
-
+                <div class="network-actions" id="network-actions">
+                    <a onclick="show_dialog('nd');">Add Device</a>
+                    <a onclick="show_dialog('nd');">Remove Device</a>
+                    <a onclick="add_connection(null, true);">Add Connection</a>
+                    <a onclick="remove_connection(null, true);">Remove Connection</a>
                 </div>
                 <div class="toggle-toolbar">
-                    <a id="open-window" onclick="toggle_toolbar(true);">Open Window</a>
-                    <a id="close-window" onclick="toggle_toolbar(false);">Close Window</a>
+                    <a id="open-window" onclick="toggle_toolbar(true);">Show Hops Details</a>
+                    <a id="close-window" onclick="toggle_toolbar(false);">Hide Hops Details</a>
                 </div>
             </div>
             <div class="hops-window-content" id="hops-window-content">
 
             </div>
         </div>
+    </div>
+
+    <div class="dialog-container" id="dialog-container">
+        <div class="dialog new-device-dialog shadow" id="new-device-dialog">
+            <form id="new-device-form">
+                <div class="dialog-header">
+                    <h3>Add new Device</h3>
+                </div>
+                <div class="dialog-body">
+                    <input class="shadow" type="text" name="device-name" id="device-name" />
+                    <select class="shadow" name="device-type">
+                        <option value=""> -- Select an Option -- </option>
+                        <option value="c">Client</option>
+                        <option value="s">Server</option>
+                        <option value="r">Router</option>
+                    </select>
+                </div>
+                <div class="dialog-actions">
+                    <button class="shadow" type="button" onclick="close_dialog()">Cancel</button>
+                    <button class="shadow" type="button" onclick="add_device()">Add</button>
+                </div>
+            </form>
+        </div>
+
     </div>
 
     <script src="js/script.js"></script>

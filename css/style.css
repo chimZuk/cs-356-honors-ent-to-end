@@ -48,6 +48,13 @@ img {
     opacity: 0.8;
 }
 
+.network-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* Hops Window Styles */
+
 .hops-window {
     position: fixed;
     bottom: 0px;
@@ -56,6 +63,8 @@ img {
     margin: 0px 10px;
     border-radius: 5px;
 }
+
+/* Toolbar Styles */
 
 .hops-toolbar {
     display: flex;
@@ -67,17 +76,21 @@ img {
     border-radius: 5px 5px 0px 0px;
 }
 
-.toggle-toolbar {
-    padding: 0 20px;
-}
-
-.toggle-toolbar a {
+.hops-toolbar a {
     color: #bcc5e4;
     cursor: pointer;
 }
 
-.toggle-toolbar a:hover {   
+.hops-toolbar a:hover {   
     text-decoration: underline;
+}
+
+.network-actions a {
+    margin-right: 10px;
+}
+
+.toggle-toolbar, .network-actions {
+    padding: 0 20px;
 }
     
 .hops-window-content {
@@ -88,27 +101,73 @@ img {
     opacity: 0.9;
 }
 
+/* Dialog Styles */
 
-/* Interactive part CSS */
-
-.network-canvas {
-    width: 100%;
-    height: 100%;
+.dialog-container {
+    display: none;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(66, 74, 96, 0.47);
+    top: 0px;
 }
 
-.network-entity {
-    width: 100px;
-    height: 100px;
-    background-position: center;
-    background-size: contain;
+.dialog {
+    background-color: white;
+    border-radius: 5px;
+    padding: 0px 0px 15px 0px;
+    color: #bcc5e4;
 }
 
-.router {
-    background-image: url("../img/router.png");
+.dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 30px;
+    width: calc(100% - 20px);
+    background-color: #424a60;
+    border-radius: 5px 5px 0px 0px;
+    padding: 3px 10px 5px 10px;
 }
-.server {
-    background-image: url("../img/server.png");
+
+.dialog input,
+.dialog select,
+.dialog button {
+    border-radius: 2px;
+    border: 1px solid #424a60;
 }
-.client {
-    background-image: url("../img/client.png");
+
+.dialog button {
+    background-color: #424a60;
+    color: #bcc5e4;
+    padding: 5px 10px;
+    margin-left: 5px;
+}
+
+.dialog button:active {
+    box-shadow: none;
+}
+
+.dialog-body {
+    padding: 10px 10px 0px 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dialog-actions {
+    padding: 10px 10px 0px 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.new-device-dialog {
+    display: none;
+    position: absolute;
+    width: 200px;
+    left: calc(50vw - 100px);
+    top: calc(50vh - 120px);
+}
+
+.new-device-dialog input {
+    margin-bottom: 10px;
 }

@@ -7,10 +7,94 @@ var $canvas = $("#network-canvas");
 var network_canvas = $("#network-canvas")[0];
 var network_canvas_context = network_canvas.getContext('2d');
 
-var app_data = JSON.parse(`{"name":"Internet","devices":[{"name":"WiFi Router","index":0,"type":"r","interfaces":[{"id":0,"ip_address":"131.89.165.121","mac_address":"2F:8C:F2:5C:83:45"},{"id":1,"ip_address":"224.15.228.222","mac_address":"B3:F5:77:E6:A6:B8"},{"id":2,"ip_address":"98.158.117.213","mac_address":"CA:A7:35:B5:34:33"}],"forwarding_table":{"239.125.242.41":0,"208.10.89.209":0,"232.142.231.212":1,"137.1.126.174":2},"coordinates":[492.5,410.125]},{"name":"Global Router 1","index":1,"type":"r","interfaces":[{"id":0,"ip_address":"232.142.231.212","mac_address":"99:D4:F8:16:61:4A"},{"id":1,"ip_address":"231.68.91.188","mac_address":"F7:AF:62:F5:D7:E3"}],"forwarding_table":{"224.15.228.222":0,"74.95.102.219":1},"coordinates":[792.5,268.375]},{"name":"Global Router 2","index":2,"type":"r","interfaces":[{"id":0,"ip_address":"137.1.126.174","mac_address":"E1:69:79:71:84:95"},{"id":1,"ip_address":"218.67.176.37","mac_address":"A0:78:F2:47:9E:BE"}],"forwarding_table":{"98.158.117.213":0,"40.99.66.9":1},"coordinates":[655.5,575.625]},{"name":"Global Router 3","index":3,"type":"r","interfaces":[{"id":0,"ip_address":"40.99.66.9","mac_address":"7E:25:C1:68:13:D4"},{"id":1,"ip_address":"80.168.160.31","mac_address":"DD:0F:54:63:6E:E3"}],"forwarding_table":{"218.67.176.37":0,"48.227.211.64":1},"coordinates":[906.5,659.875]},{"name":"Yoga 920","index":4,"type":"c","interfaces":[{"id":0,"ip_address":"239.125.242.41","mac_address":"4A:06:46:39:64:95"}],"forwarding_table":{"131.89.165.121":0},"coordinates":[170.25,259.25]},{"name":"Samsung Galaxy S9","index":5,"type":"c","interfaces":[{"id":0,"ip_address":"208.10.89.209","mac_address":"A4:7D:46:0F:3D:90"}],"forwarding_table":{"131.89.165.121":0},"coordinates":[168.25,530.75]},{"name":"DNS Server","index":6,"type":"s","interfaces":[{"id":0,"ip_address":"74.95.102.219","mac_address":"AE:59:73:6F:59:70"}],"forwarding_table":{"231.68.91.188":0},"coordinates":[1145.75,198.25]},{"name":"Web Server","index":7,"type":"s","interfaces":[{"id":0,"ip_address":"48.227.211.64","mac_address":"CB:B6:8F:CD:E8:D2"}],"forwarding_table":{"80.168.160.31":0},"coordinates":[1158.75,683.75]}],"links":[{"i1_dev":4,"i1_type":"client","i1_int":0,"i1_ip":"239.125.242.41","i1_mac":"4A:06:46:39:64:95","i2_dev":0,"i2_type":"router","i2_int":0,"i2_ip":"131.89.165.121","i2_mac":"2F:8C:F2:5C:83:45"},{"i1_dev":5,"i1_type":"client","i1_int":0,"i1_ip":"208.10.89.209","i1_mac":"A4:7D:46:0F:3D:90","i2_dev":0,"i2_type":"router","i2_int":0,"i2_ip":"131.89.165.121","i2_mac":"2F:8C:F2:5C:83:45"},{"i1_dev":0,"i1_type":"router","i1_int":1,"i1_ip":"224.15.228.222","i1_mac":"B3:F5:77:E6:A6:B8","i2_dev":1,"i2_type":"router","i2_int":0,"i2_ip":"232.142.231.212","i2_mac":"99:D4:F8:16:61:4A"},{"i1_dev":0,"i1_type":"router","i1_int":2,"i1_ip":"98.158.117.213","i1_mac":"CA:A7:35:B5:34:33","i2_dev":2,"i2_type":"router","i2_int":0,"i2_ip":"137.1.126.174","i2_mac":"E1:69:79:71:84:95"},{"i1_dev":6,"i1_type":"server","i1_int":0,"i1_ip":"74.95.102.219","i1_mac":"AE:59:73:6F:59:70","i2_dev":1,"i2_type":"router","i2_int":1,"i2_ip":"231.68.91.188","i2_mac":"F7:AF:62:F5:D7:E3"},{"i1_dev":2,"i1_type":"router","i1_int":1,"i1_ip":"218.67.176.37","i1_mac":"A0:78:F2:47:9E:BE","i2_dev":3,"i2_type":"router","i2_int":0,"i2_ip":"40.99.66.9","i2_mac":"7E:25:C1:68:13:D4"},{"i1_dev":7,"i1_type":"server","i1_int":0,"i1_ip":"48.227.211.64","i1_mac":"CB:B6:8F:CD:E8:D2","i2_dev":3,"i2_type":"router","i2_int":1,"i2_ip":"80.168.160.31","i2_mac":"DD:0F:54:63:6E:E3"}],"links_graph":{"131.89.165.121":["239.125.242.41","208.10.89.209","224.15.228.222","98.158.117.213"],"224.15.228.222":["232.142.231.212","131.89.165.121","98.158.117.213"],"98.158.117.213":["137.1.126.174","131.89.165.121","224.15.228.222"],"232.142.231.212":["224.15.228.222","231.68.91.188"],"231.68.91.188":["74.95.102.219","232.142.231.212"],"137.1.126.174":["98.158.117.213","218.67.176.37"],"218.67.176.37":["40.99.66.9","137.1.126.174"],"40.99.66.9":["218.67.176.37","80.168.160.31"],"80.168.160.31":["48.227.211.64","40.99.66.9"],"239.125.242.41":["131.89.165.121"],"208.10.89.209":["131.89.165.121"],"74.95.102.219":["231.68.91.188"],"48.227.211.64":["80.168.160.31"]},"ip_list":["131.89.165.121","224.15.228.222","98.158.117.213","232.142.231.212","231.68.91.188","137.1.126.174","218.67.176.37","40.99.66.9","80.168.160.31","239.125.242.41","208.10.89.209","74.95.102.219","48.227.211.64"],"mac_list":["2F:8C:F2:5C:83:45","B3:F5:77:E6:A6:B8","CA:A7:35:B5:34:33","99:D4:F8:16:61:4A","F7:AF:62:F5:D7:E3","E1:69:79:71:84:95","A0:78:F2:47:9E:BE","7E:25:C1:68:13:D4","DD:0F:54:63:6E:E3","4A:06:46:39:64:95","A4:7D:46:0F:3D:90","AE:59:73:6F:59:70","CB:B6:8F:CD:E8:D2"]}`);
+var app_data = JSON.parse(`{"name":"Internet","devices":[{"name":"WiFi Router","index":0,"type":"r","interfaces":[{"id":0,"ip_address":"131.89.165.121","mac_address":"2F:8C:F2:5C:83:45"},{"id":1,"ip_address":"224.15.228.222","mac_address":"B3:F5:77:E6:A6:B8"},{"id":2,"ip_address":"98.158.117.213","mac_address":"CA:A7:35:B5:34:33"}],"forwarding_table":{"239.125.242.41":0,"208.10.89.209":0,"232.142.231.212":1,"137.1.126.174":2},"coordinates":[492.5,410.125]},{"name":"Global Router 1","index":1,"type":"r","interfaces":[{"id":0,"ip_address":"232.142.231.212","mac_address":"99:D4:F8:16:61:4A"},{"id":1,"ip_address":"231.68.91.188","mac_address":"F7:AF:62:F5:D7:E3"}],"forwarding_table":{"224.15.228.222":0,"74.95.102.219":1},"coordinates":[792.5,268.375]},{"name":"Global Router 2","index":2,"type":"r","interfaces":[{"id":0,"ip_address":"137.1.126.174","mac_address":"E1:69:79:71:84:95"},{"id":1,"ip_address":"218.67.176.37","mac_address":"A0:78:F2:47:9E:BE"}],"forwarding_table":{"98.158.117.213":0,"40.99.66.9":1},"coordinates":[655.5,575.625]},{"name":"Global Router 3","index":3,"type":"r","interfaces":[{"id":0,"ip_address":"40.99.66.9","mac_address":"7E:25:C1:68:13:D4"},{"id":1,"ip_address":"80.168.160.31","mac_address":"DD:0F:54:63:6E:E3"}],"forwarding_table":{"218.67.176.37":0,"48.227.211.64":1},"coordinates":[906.5,659.875]},{"name":"Yoga 920","index":4,"type":"c","interfaces":[{"id":0,"ip_address":"239.125.242.41","mac_address":"4A:06:46:39:64:95"}],"forwarding_table":{"131.89.165.121":0},"coordinates":[170.25,259.25]},{"name":"Samsung Galaxy S9","index":5,"type":"c","interfaces":[{"id":0,"ip_address":"208.10.89.209","mac_address":"A4:7D:46:0F:3D:90"}],"forwarding_table":{"131.89.165.121":0},"coordinates":[168.25,530.75]},{"name":"DNS Server","index":6,"type":"s","interfaces":[{"id":0,"ip_address":"74.95.102.219","mac_address":"AE:59:73:6F:59:70"}],"forwarding_table":{"231.68.91.188":0},"coordinates":[1145.75,198.25]},{"name":"Web Server","index":7,"type":"s","interfaces":[{"id":0,"ip_address":"48.227.211.64","mac_address":"CB:B6:8F:CD:E8:D2"}],"forwarding_table":{"80.168.160.31":0},"coordinates":[1158.75,683.75]}],"links":[{"id": 0, "i1_dev":4,"i1_type":"client","i1_int":0,"i1_ip":"239.125.242.41","i1_mac":"4A:06:46:39:64:95","i2_dev":0,"i2_type":"router","i2_int":0,"i2_ip":"131.89.165.121","i2_mac":"2F:8C:F2:5C:83:45"},{"id": 1, "i1_dev":5,"i1_type":"client","i1_int":0,"i1_ip":"208.10.89.209","i1_mac":"A4:7D:46:0F:3D:90","i2_dev":0,"i2_type":"router","i2_int":0,"i2_ip":"131.89.165.121","i2_mac":"2F:8C:F2:5C:83:45"},{"id": 2, "i1_dev":0,"i1_type":"router","i1_int":1,"i1_ip":"224.15.228.222","i1_mac":"B3:F5:77:E6:A6:B8","i2_dev":1,"i2_type":"router","i2_int":0,"i2_ip":"232.142.231.212","i2_mac":"99:D4:F8:16:61:4A"},{"i1_dev":0,"i1_type":"router","i1_int":2,"i1_ip":"98.158.117.213","i1_mac":"CA:A7:35:B5:34:33","i2_dev":2,"i2_type":"router","i2_int":0,"i2_ip":"137.1.126.174","i2_mac":"E1:69:79:71:84:95"},{"id": 3, "i1_dev":6,"i1_type":"server","i1_int":0,"i1_ip":"74.95.102.219","i1_mac":"AE:59:73:6F:59:70","i2_dev":1,"i2_type":"router","i2_int":1,"i2_ip":"231.68.91.188","i2_mac":"F7:AF:62:F5:D7:E3"},{"id": 4, "i1_dev":2,"i1_type":"router","i1_int":1,"i1_ip":"218.67.176.37","i1_mac":"A0:78:F2:47:9E:BE","i2_dev":3,"i2_type":"router","i2_int":0,"i2_ip":"40.99.66.9","i2_mac":"7E:25:C1:68:13:D4"},{"id": 5, "i1_dev":7,"i1_type":"server","i1_int":0,"i1_ip":"48.227.211.64","i1_mac":"CB:B6:8F:CD:E8:D2","i2_dev":3,"i2_type":"router","i2_int":1,"i2_ip":"80.168.160.31","i2_mac":"DD:0F:54:63:6E:E3"}],"links_graph":{"131.89.165.121":["239.125.242.41","208.10.89.209","224.15.228.222","98.158.117.213"],"224.15.228.222":["232.142.231.212","131.89.165.121","98.158.117.213"],"98.158.117.213":["137.1.126.174","131.89.165.121","224.15.228.222"],"232.142.231.212":["224.15.228.222","231.68.91.188"],"231.68.91.188":["74.95.102.219","232.142.231.212"],"137.1.126.174":["98.158.117.213","218.67.176.37"],"218.67.176.37":["40.99.66.9","137.1.126.174"],"40.99.66.9":["218.67.176.37","80.168.160.31"],"80.168.160.31":["48.227.211.64","40.99.66.9"],"239.125.242.41":["131.89.165.121"],"208.10.89.209":["131.89.165.121"],"74.95.102.219":["231.68.91.188"],"48.227.211.64":["80.168.160.31"]},"ip_list":["131.89.165.121","224.15.228.222","98.158.117.213","232.142.231.212","231.68.91.188","137.1.126.174","218.67.176.37","40.99.66.9","80.168.160.31","239.125.242.41","208.10.89.209","74.95.102.219","48.227.211.64"],"mac_list":["2F:8C:F2:5C:83:45","B3:F5:77:E6:A6:B8","CA:A7:35:B5:34:33","99:D4:F8:16:61:4A","F7:AF:62:F5:D7:E3","E1:69:79:71:84:95","A0:78:F2:47:9E:BE","7E:25:C1:68:13:D4","DD:0F:54:63:6E:E3","4A:06:46:39:64:95","A4:7D:46:0F:3D:90","AE:59:73:6F:59:70","CB:B6:8F:CD:E8:D2"]}`);
+
+var global_network;
+var global_network_view;
+
+var connection_add_status;
+var selected_interfaces;
+var selected_devices;
+
+var connection_remove_status;
+
+function add_device() {
+    var new_device_data = $("#new-device-form").serializeArray().map(x => x.value);
+
+    if (new_device_data[0] != "" && new_device_data[1] != "") {
+
+        var device;
+
+        switch (new_device_data[1]) {
+            case "c": {
+                device = global_network.add_client(new_device_data[0]);
+                break;
+            }
+            case "r": {
+                device = global_network.add_router(new_device_data[0]);
+                break;
+            }
+            case "s": {
+                device = global_network.add_server(new_device_data[0]);
+                break;
+            }
+        }
+
+        device.add_interface(global_network.generate_mac(), global_network.generate_ip());
+        global_network_view.render_network(global_network);
+
+        close_dialog();
+    }
+}
+
+function add_connection(layer, is_initial) {
+    connection_add_status = (is_initial) ? 0 : connection_add_status + 1;
+    if (is_initial) {
+        selected_devices = [];
+        selected_interfaces = [];
+    } else {
+        selected_devices.push(layer.data.device);
+        selected_interfaces.push(layer.data.interface);
+    }
+    console.log(selected_devices);
+    console.log(selected_interfaces);
+    if (connection_add_status == 2) {
+        global_network.setup_connection(selected_devices[0], selected_devices[1], selected_interfaces[0], selected_interfaces[1]);
+        global_network_view.render_network(global_network);
+    }
+}
+
+function remove_connection(link, is_initial) {
+    connection_remove_status = (is_initial) ? 0 : connection_remove_status + 1;
+
+    if (connection_remove_status == 1) {
+        global_network.links.splice(link, 1);
+        global_network_view.render_network(global_network);
+    }
+}
+
+
+function show_dialog(type) {
+    $("#dialog-container").fadeIn();
+
+    switch (type) {
+        case "nd": {
+            $("#new-device-dialog").fadeIn();
+            break;
+        }
+        default: {
+            close_dialog();
+            break;
+        }
+    }
+}
+
+function close_dialog() {
+    $("#dialog-container").fadeOut();
+    $("#new-device-dialog").fadeOut();
+}
 
 function start_application() {
-    console.log(app_data);
     let network = new Network("Internet");
 
     network.ip_list = app_data.ip_list;
@@ -21,13 +105,14 @@ function start_application() {
         network.add_device(app_data.devices[i]);
     }
 
-    console.log(network);
     var network_view = new NetworkRenderer(network);
+    network_view.render_network(network);
 
+    global_network = network;
+    global_network_view = network_view;
 }
 
 function start_applicationn() {
-    //console.log(app_data);
     let network = new Network("Internet");
 
     var wifi_router = network.add_router("WiFi Router");
@@ -157,7 +242,6 @@ class Network {
     }
 
     add_device(device) {
-        console.log(device);
         var new_device = new Device(device.name, device.index, device.type);
 
         new_device.forwarding_table = device.forwarding_table;
@@ -166,7 +250,7 @@ class Network {
         for (var i in device.interfaces) {
             new_device.add_interface(device.interfaces[i].id, device.interfaces[i].mac_address, device.interfaces[i].ip_address);
         }
-        return this.devices[this.devices.push(new Device(name, this.devices.length, "c")) - 1]
+        return this.devices[this.devices.push(new_device) - 1]
     }
 
     add_client(name) {
@@ -181,11 +265,21 @@ class Network {
         return this.devices[this.devices.push(new Device(name, this.devices.length, "s")) - 1];
     }
 
+    setup_connection(device_1, device_2, interface_id_1, interface_id_2) {
+        var interface_1 = device_1.interfaces[interface_id_1];
+        var interface_2 = device_2.interfaces[interface_id_2];
+        device_1.add_connection(interface_2, interface_id_1);
+        device_2.add_connection(interface_1, interface_id_2);
+
+        this.add_link(interface_1, device_1, interface_2, device_2);
+    }
+
     add_link(interface_1, device_1, interface_2, device_2) {
         var i1_type = (device_1.type == "c") ? "client" : (device_1.type == "r" ? "router" : "server");
         var i2_type = (device_2.type == "c") ? "client" : (device_2.type == "r" ? "router" : "server");
 
         this.links.push({
+            id: this.links.length,
             i1_dev: device_1.index,
             i1_type: i1_type,
             i1_int: interface_1.id,
@@ -197,23 +291,12 @@ class Network {
             i2_ip: interface_2.ip_address,
             i2_mac: interface_2.mac_address
         });
-
-        this.links_graph[interface_1.ip_address].push(interface_2.ip_address);
-        this.links_graph[interface_2.ip_address].push(interface_1.ip_address);
-    }
-
-    setup_connection(device_1, device_2, interface_id_1, interface_id_2) {
-        var interface_1 = device_1.interfaces[interface_id_1];
-        var interface_2 = device_2.interfaces[interface_id_2];
-        device_1.add_connection(interface_2, interface_id_1);
-        device_2.add_connection(interface_1, interface_id_2);
-
-        this.add_link(interface_1, device_1, interface_2, device_2);
     }
 }
 
 class Device {
     constructor(name, index, type) {
+        this.coordinates = [100, 100];
         this.name = name;
         this.index = index;
         this.type = type;
@@ -243,6 +326,7 @@ class Interface {
         this.id = id;
         this.ip_address = (ip_address == null) ? "" : ip_address;
         this.mac_address = mac_address;
+        this.position
     }
 
     get_ip_address() {
@@ -257,8 +341,8 @@ class Interface {
 
 class NetworkRenderer {
     constructor(network) {
-        this.render_network(network);
         console.log(network);
+        this.render_network(network);
         $(window).on('resize', () => this.render_network());
     }
 
@@ -278,19 +362,6 @@ class NetworkRenderer {
         });
 
         this.links = network.links;
-
-        for (var device in this.network.devices) {
-            var temp_device = this.network.devices[device];
-            for (var interface_1 in temp_device.interfaces) {
-                var temp_interface_1 = temp_device.interfaces[interface_1];
-                for (var interface_2 in temp_device.interfaces) {
-                    var temp_interface_2 = temp_device.interfaces[interface_2];
-                    if (temp_interface_1.ip_address != temp_interface_2.ip_address) {
-                        this.network.links_graph[temp_interface_1.ip_address].push(temp_interface_2.ip_address);
-                    }
-                }
-            }
-        }
     }
 
     resize_canvas() {
@@ -316,22 +387,6 @@ class NetworkRenderer {
         this.resize_canvas();
 
         for (var client in this.clients) {
-            /*var sliced_height = this.y_actual / this.clients.length;
-            var center_height = sliced_height / 2;
-
-            var sliced_width = this.x_actual / 2;
-            var center_width = sliced_width - sliced_width / 2;
-
-            var x = center_width;
-            var y = sliced_height * client + center_height;
-
-            if (this.clients[client].coordinates) {
-                x = this.clients[client].coordinates[0];
-                y = this.clients[client].coordinates[1];
-            }*/
-
-            console.log(this.clients[client]);
-
             var x = this.clients[client].coordinates[0];
             var y = this.clients[client].coordinates[1];
 
@@ -341,20 +396,6 @@ class NetworkRenderer {
         }
 
         for (var router in this.routers) {
-            /*var sliced_height = this.y_actual / this.routers.length;
-            var center_height = sliced_height / 2;
-
-            var sliced_width = this.x_actual / 2;
-            var center_width = sliced_width;
-
-            var x = center_width;
-            var y = sliced_height * router + center_height;
-
-            if (this.routers[router].coordinates) {
-                x = this.routers[router].coordinates[0];
-                y = this.routers[router].coordinates[1];
-            }*/
-
             var x = this.routers[router].coordinates[0];
             var y = this.routers[router].coordinates[1];
 
@@ -364,20 +405,6 @@ class NetworkRenderer {
         }
 
         for (var server in this.servers) {
-            /*var sliced_height = this.y_actual / this.servers.length;
-            var center_height = sliced_height / 2;
-
-            var sliced_width = this.x_actual / 2;
-            var center_width = sliced_width + sliced_width / 2;
-
-            var x = center_width;
-            var y = sliced_height * server + center_height;
-
-            if (this.servers[server].coordinates) {
-                x = this.servers[server].coordinates[0];
-                y = this.servers[server].coordinates[1];
-            }*/
-
             var x = this.servers[server].coordinates[0];
             var y = this.servers[server].coordinates[1];
 
@@ -411,15 +438,36 @@ class NetworkRenderer {
         $canvas.addLayer({
             type: 'line',
             groups: ['common', 'links'],
+            data: { id: link },
             name: 'link_' + link,
             layer: true,
             strokeStyle: '#7383bf',
             shadowColor: '#222', shadowBlur: 3,
             strokeWidth: 10,
             rounded: true,
-            index: 1,
+            index: 0,
             x1: c_d.x1, y1: c_d.y1,
-            x2: c_d.x2, y2: c_d.y2
+            x2: c_d.x2, y2: c_d.y2,
+            cursors: {
+                mouseover: 'pointer',
+                mousedown: 'pointer',
+                mouseup: 'pointer'
+            },
+            click: function (layer) {
+                if (connection_remove_status == 0) {
+                    remove_connection(layer.data.id, false)
+                }
+            },
+            mouseover: function (layer) {
+                $(this).setLayer(layer, {
+                    strokeStyle: '#bcc5e4'
+                });
+            },
+            mouseout: function (layer) {
+                $(this).setLayer(layer, {
+                    strokeStyle: '#7383bf'
+                });
+            }
         });
     }
 
@@ -481,7 +529,7 @@ class NetworkRenderer {
             fillStyle: '#bcc5e4',
             strokeWidth: 1,
             x: x, y: y + 73,
-            index: 10,
+            index: 3,
             fontSize: font, fontFamily: 'Solway, serif',
             text: name
         });
@@ -492,7 +540,7 @@ class NetworkRenderer {
             name: type + '_name_box_' + index,
             fillStyle: '#556080',
             x: x, y: y + 73,
-            index: 4,
+            index: 1,
             width: $canvas.measureText(type + '_name_' + index).width * 1.3, height: 22, fromCenter: true,
             shadowColor: '#222', shadowBlur: 3
         });
@@ -506,12 +554,35 @@ class NetworkRenderer {
             $canvas.addLayer({
                 type: 'rectangle',
                 groups: ['common', index],
+                data: { device: data, interface: temp_interface.id },
                 name: type + '_interface_box_' + index + '_' + temp_interface.id,
                 fillStyle: '#556080',
                 x: x + 48, y: y + y_i,
                 width: 20, height: 20, fromCenter: true,
                 index: 6,
-                shadowColor: '#222', shadowBlur: 3
+                shadowColor: '#222', shadowBlur: 3,
+                cursors: {
+                    mouseover: 'pointer',
+                    mousedown: 'pointer',
+                    mouseup: 'pointer'
+                },
+                click: function (layer) {
+                    console.log("click")
+                    console.log(layer);
+                    if (connection_add_status == 0 || connection_add_status == 1) {
+                        add_connection(layer, false);
+                    }
+                }.bind(this),
+                mouseover: function (layer) {
+                    $(this).setLayer(layer, {
+                        fillStyle: '#bcc5e4'
+                    });
+                },
+                mouseout: function (layer) {
+                    $(this).setLayer(layer, {
+                        fillStyle: '#556080'
+                    });
+                }
             });
         }
 
