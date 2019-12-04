@@ -59,7 +59,7 @@ function remove_interface(data, is_initial) {
     interface_remove_status = (is_initial) ? 0 : interface_remove_status + 1;
 
     if (interface_remove_status == 1) {
-        
+
     }
 }
 
@@ -428,8 +428,6 @@ class NetworkRenderer {
                 }
             });
         }
-
-        $canvas.drawLayers();
     }
 
     render_device(data, id, x, y) {
@@ -466,14 +464,14 @@ class NetworkRenderer {
 
         $canvas.addLayer({
             type: 'text', text: name, layer: true,
-            name: 'name_' + id, groups: [id, 'common'],
+            name: 'name_' + id, groups: [id, 'common'], dragGroups: [id],
             x: x, y: y + 73, fromCenter: true, index: 3,
             fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
         });
 
         $canvas.addLayer({
             type: 'rectangle', layer: true,
-            name: 'box_' + id, groups: [id, 'common'],
+            name: 'box_' + id, groups: [id, 'common'], dragGroups: [id],
             x: x, y: y + 73, width: $canvas.measureText('name_' + id).width * 1.3, height: 22, fromCenter: true, index: 1,
             fillStyle: '#556080', shadowColor: '#222', shadowBlur: 3
         });
@@ -485,7 +483,7 @@ class NetworkRenderer {
 
             $canvas.addLayer({
                 type: 'rectangle', layer: true,
-                name: 'interface_box_' + id + '_' + temp_interface.id, groups: [id, 'common'], data: { device: data, interface: temp_interface.id },
+                name: 'interface_box_' + id + '_' + temp_interface.id, groups: [id, 'common'], dragGroups: [id], data: { device: data, interface: temp_interface.id },
                 x: x + 48, y: y + y_i, width: 20, height: 20, fromCenter: true, index: 6,
                 fillStyle: '#556080', shadowColor: '#222', shadowBlur: 3,
                 cursors: { mouseover: 'pointer', mousedown: 'pointer', mouseup: 'pointer' },
