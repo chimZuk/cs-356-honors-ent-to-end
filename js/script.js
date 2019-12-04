@@ -109,6 +109,7 @@ function send_request(data, is_initial) {
 
     if (request_status == 2) {
         console.log(request_devices);
+        console.log(global_network.devices);
     }
 }
 
@@ -269,7 +270,7 @@ class Network {
         new_device.coordinates = device.coordinates;
 
         for (var i in device.interfaces) {
-            new_device.add_interface(device.interfaces[i].id, device.interfaces[i].mac_address, device.interfaces[i].ip_address);
+            new_device.add_existing_interface(device.interfaces[i].id, device.interfaces[i].mac_address, device.interfaces[i].ip_address);
         }
         return this.devices[this.devices.push(new_device) - 1]
     }
