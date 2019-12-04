@@ -11,15 +11,8 @@ var app_data = JSON.parse(`{"name":"Internet","devices":[{"coordinates":[334,252
 var global_network;
 var global_network_view;
 
-var connection_add_status;
-var selected_interfaces;
-var selected_devices;
 
-var connection_remove_status;
-
-function save_data() {
-    console.log(JSON.stringify(global_network));
-}
+//---- Adding/Removing devices
 
 function add_device() {
     var new_device_data = $("#new-device-form").serializeArray().map(x => x.value);
@@ -34,6 +27,31 @@ function add_device() {
         close_dialog();
     }
 }
+
+function remove_device() {
+    var new_device_data = $("#new-device-form").serializeArray().map(x => x.value);
+
+    if (new_device_data[0] != "" && new_device_data[1] != "") {
+
+        var device = global_network.add_device(new_device_data[0], new_device_data[1], [100, 100]);
+
+        device.add_interface(global_network.generate_mac(), global_network.generate_ip());
+        global_network_view.render_network(global_network);
+
+        close_dialog();
+    }
+}
+
+//---- End of Adding/Removing devices
+
+
+//---- Adding/Removing connections
+
+var connection_add_status;
+var selected_interfaces;
+var selected_devices;
+
+var connection_remove_status;
 
 function add_connection(layer, is_initial) {
     connection_add_status = (is_initial) ? 0 : connection_add_status + 1;
@@ -60,28 +78,10 @@ function remove_connection(link, is_initial) {
     }
 }
 
-
-function show_dialog(type) {
-    $("#dialog-container").fadeIn();
-
-    switch (type) {
-        case "nd": {
-            $("#new-device-dialog").fadeIn();
-            break;
-        }
-        default: {
-            close_dialog();
-            break;
-        }
-    }
-}
-
-function close_dialog() {
-    $("#dialog-container").fadeOut();
-    $("#new-device-dialog").fadeOut();
-}
+//---- End of Adding/Removing connections
 
 
+//---- Hops Start
 
 var request_status;
 var request_devices;
@@ -100,8 +100,10 @@ function send_request(data, is_initial) {
     }
 }
 
+//---- End of Hops Start
 
 
+//---- Application start
 
 function start_application() {
     let network = new Network("Internet");
@@ -170,6 +172,10 @@ function start_applicationn() {
     global_network = network;
     global_network_view = network_view;
 }
+
+//---- End of Application start
+
+
 
 class Network {
     constructor(name) {
@@ -401,7 +407,7 @@ class NetworkRenderer {
                 }
             });
         }
-        
+
         $canvas.drawLayers();
     }
 
@@ -484,6 +490,30 @@ class NetworkRenderer {
         }
 
         $canvas.drawLayers();
+    }
+}
+
+function save_data() {
+    console.log(JSON.stringify(global_network));
+}
+
+function close_dialog() {
+    $("#dialog-container").fadeOut();
+    $("#new-device-dialog").fadeOut();
+}
+
+function show_dialog(type) {
+    $("#dialog-container").fadeIn();
+
+    switch (type) {
+        case "nd": {
+            $("#new-device-dialog").fadeIn();
+            break;
+        }
+        default: {
+            close_dialog();
+            break;
+        }
     }
 }
 
