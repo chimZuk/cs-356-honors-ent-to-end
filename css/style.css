@@ -85,11 +85,11 @@ img {
     text-decoration: underline;
 }
 
-.network-actions a {
+.network-actions a, .hops-actions a {
     margin-right: 10px;
 }
 
-.toggle-toolbar, .network-actions {
+.toggle-toolbar, .network-actions, .hops-actions {
     padding: 0 20px;
 }
     

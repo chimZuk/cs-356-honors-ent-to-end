@@ -94,6 +94,27 @@ function close_dialog() {
     $("#new-device-dialog").fadeOut();
 }
 
+
+
+var request_status;
+var request_devices;
+
+function send_request(data, is_initial) {
+    request_status = (is_initial) ? 0 : request_status + 1;
+    if (is_initial) {
+        request_devices = [];
+    } else {
+        request_devices.push(data);
+    }
+
+    if (request_status == 2) {
+        console.log(request_devices);
+    }
+}
+
+
+
+
 function start_application() {
     let network = new Network("Internet");
 
@@ -510,6 +531,11 @@ class NetworkRenderer {
                 mouseover: 'pointer',
                 mousedown: 'pointer',
                 mouseup: 'pointer'
+            },
+            click: function (layer) {
+                if (request_status == 0 || request_status == 1) {
+                    send_request(layer.data, false)
+                }
             },
             drag: function (layer) {
                 this.network.devices[data.index].coordinates = [layer.x, layer.y];
