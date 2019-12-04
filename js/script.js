@@ -14,31 +14,24 @@ var global_network_view;
 
 //---- Adding/Removing devices
 
+var device_remove_status;
+
 function add_device() {
     var new_device_data = $("#new-device-form").serializeArray().map(x => x.value);
 
     if (new_device_data[0] != "" && new_device_data[1] != "") {
-
-        var device = global_network.add_device(new_device_data[0], new_device_data[1], [100, 100]);
-
-        device.add_interface(global_network.generate_mac(), global_network.generate_ip());
+        global_network.add_device(new_device_data[0], new_device_data[1], [100, 100]);
         global_network_view.render_network(global_network);
-
         close_dialog();
     }
 }
 
-function remove_device() {
-    var new_device_data = $("#new-device-form").serializeArray().map(x => x.value);
+function remove_device(layer, is_initial) {
+    device_remove_status = (is_initial) ? 0 : device_remove_status + 1;
 
-    if (new_device_data[0] != "" && new_device_data[1] != "") {
-
-        var device = global_network.add_device(new_device_data[0], new_device_data[1], [100, 100]);
-
-        device.add_interface(global_network.generate_mac(), global_network.generate_ip());
+    if (device_remove_status == 1) {
+        global_network.remove_device(layer.data);
         global_network_view.render_network(global_network);
-
-        close_dialog();
     }
 }
 
@@ -51,15 +44,21 @@ var interface_add_status;
 
 var interface_remove_status;
 
-function add_interface(device, is_initial) {
+function add_interface(layer, is_initial) {
+    interface_add_status = (is_initial) ? 0 : interface_add_status + 1;
 
+    if (interface_add_status == 1) {
+        global_network.add_interface(layer.data);
+        global_network_view.render_network(global_network);
+    }
 }
 
-function remove_interface(data, is_initial) {
+function remove_interface(layer, is_initial) {
     interface_remove_status = (is_initial) ? 0 : interface_remove_status + 1;
 
     if (interface_remove_status == 1) {
-
+        global_network.remove_interface(layer.data.device, layer.data.interface);
+        global_network_view.render_network(global_network);
     }
 }
 
@@ -85,16 +84,15 @@ function add_connection(layer, is_initial) {
     }
 
     if (connection_add_status == 2) {
-        global_network.setup_connection(selected_devices[0], selected_devices[1], selected_interfaces[0], selected_interfaces[1]);
+        global_network.add_connection(selected_devices[0], selected_devices[1], selected_interfaces[0], selected_interfaces[1]);
         global_network_view.render_network(global_network);
     }
 }
 
 function remove_connection(link, is_initial) {
     connection_remove_status = (is_initial) ? 0 : connection_remove_status + 1;
-
     if (connection_remove_status == 1) {
-        global_network.links.splice(link, 1);
+        global_network.remove_connection(link)
         global_network_view.render_network(global_network);
     }
 }
@@ -107,12 +105,12 @@ function remove_connection(link, is_initial) {
 var request_status;
 var request_devices;
 
-function send_request(data, is_initial) {
+function send_request(layer, is_initial) {
     request_status = (is_initial) ? 0 : request_status + 1;
     if (is_initial) {
         request_devices = [];
     } else {
-        request_devices.push(data);
+        request_devices.push(layer.data);
     }
 
     if (request_status == 2) {
@@ -177,16 +175,16 @@ function start_applicationn() {
     var web_server = network.add_device("Web Server", "s", [100, 100]);
     web_server.add_interface(network.generate_mac(), network.generate_ip());
 
-    network.setup_connection(laptop, wifi_router, 0, 0);
-    network.setup_connection(phone_1, wifi_router, 0, 0);
+    network.add_connection(laptop, wifi_router, 0, 0);
+    network.add_connection(phone_1, wifi_router, 0, 0);
 
-    network.setup_connection(wifi_router, global_router_1, 1, 0);
-    network.setup_connection(wifi_router, global_router_2, 2, 0);
+    network.add_connection(wifi_router, global_router_1, 1, 0);
+    network.add_connection(wifi_router, global_router_2, 2, 0);
 
-    network.setup_connection(dns_server, global_router_1, 0, 1);
-    network.setup_connection(global_router_2, global_router_3, 1, 0);
+    network.add_connection(dns_server, global_router_1, 0, 1);
+    network.add_connection(global_router_2, global_router_3, 1, 0);
 
-    network.setup_connection(web_server, global_router_3, 0, 1);
+    network.add_connection(web_server, global_router_3, 0, 1);
 
     var network_view = new NetworkRenderer(network);
 
@@ -224,12 +222,62 @@ class Network {
         return this.devices[this.devices.push(new_device) - 1]
     }
 
-    setup_connection(device_1, device_2, interface_id_1, interface_id_2) {
+    remove_device(device) {
+        for (var i in this.devices) {
+            if (this.devices[i].id == device.id) {
+                for (var j = 0; j < this.devices[i].interfaces.length; j++) {
+                    for (var k = 0; k < this.links.length; k++) {
+                        if (this.links[k].device_1.dev == device.id && this.links[k].device_1.int == this.devices[i].interfaces[j].id ||
+                            this.links[k].device_2.dev == device.id && this.links[k].device_2.int == this.devices[i].interfaces[j].id) {
+                            this.links.splice(k, 1);
+                            k--;
+                        }
+                    }
+                    this.devices[i].interfaces.splice(j, 1);
+                    j--;
+                }
+                this.devices.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    add_interface(device) {
+        for (var i in this.devices) {
+            if (this.devices[i].id == device.id) {
+                this.devices[i].add_interface(this.generate_mac(), this.generate_ip());
+                break;
+            }
+        }
+    }
+
+    remove_interface(device, interface_id) {
+        for (var i in this.devices) {
+            if (this.devices[i].id == device.id) {
+                for (var j in this.devices[i].interfaces) {
+                    if (this.devices[i].interfaces[j].id == interface_id) {
+                        this.devices[i].interfaces.splice(j, 1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (var i = 0; i < this.links.length; i++) {
+            if (this.links[i].device_1.dev == device.id && this.links[i].device_1.int == interface_id ||
+                this.links[i].device_2.dev == device.id && this.links[i].device_2.int == interface_id) {
+                this.links.splice(i, 1);
+                i--;
+            }
+        }
+    }
+
+    add_connection(device_1, device_2, interface_id_1, interface_id_2) {
         var interface_1 = device_1.interfaces[interface_id_1];
         var interface_2 = device_2.interfaces[interface_id_2];
 
         this.links.push({
-            id: this.links.length,
+            id: this.generate_id(),
             device_1: {
                 dev: device_1.id,
                 type: (device_1.type == "c") ? "client" : (device_1.type == "r" ? "router" : "server"),
@@ -247,16 +295,25 @@ class Network {
         });
     }
 
+    remove_connection(link) {
+        for (var i = 0; i < this.links.length; i++) {
+            if (this.links[i].id == link) {
+                this.links.splice(i, 1);
+                break;
+            }
+        }
+    }
+
     //---- Sub-Routine Functional
 
     get_d_by_id(id) {
         for (var i in this.devices) {
             var temp_device = this.devices[i];
             if (temp_device.id == id) {
-                return { device: temp_device };
+                return temp_device;
             }
         }
-        return { device: null };
+        return null;
     }
 
     get_d_by_ip(ip_address) {
@@ -324,6 +381,10 @@ class Device {
         this.id_count = -1;
     }
 
+    set_coordinates(coordinates) {
+        this.coordinates = coordinates;
+    }
+
     add_interface(mac_address, ip_address) {
         this.interfaces.push(new Interface(this.generate_id(), mac_address, ip_address));
     }
@@ -355,6 +416,7 @@ class NetworkRenderer {
     }
 
     set_render_data(network) {
+        console.log(network.devices[0].coordinates);
         this.network = network;
         this.devices = network.devices;
         this.links = network.links;
@@ -378,6 +440,7 @@ class NetworkRenderer {
     }
 
     render_network(network = null) {
+        console.log(network.devices[0].coordinates);
         this.network = (network == null) ? this.network : network;
         this.set_render_data(this.network);
         this.resize_canvas();
@@ -385,13 +448,13 @@ class NetworkRenderer {
         for (var device in this.devices) {
             var x = this.devices[device].coordinates[0];
             var y = this.devices[device].coordinates[1];
-
             this.devices[device].coordinates = [x, y];
 
             this.render_device(this.devices[device], device, x, y);
         }
 
         this.render_links();
+        $canvas.drawLayers();
     }
 
     render_links() {
@@ -451,13 +514,19 @@ class NetworkRenderer {
             }.bind(this),
 
             dragstop: function (layer) {
-                this.network.get_d_by_id(data.id).coordinates = [layer.x, layer.y];
+                this.network.get_d_by_id(data.id).set_coordinates([layer.x, layer.y]);
                 this.render_links();
             }.bind(this),
 
             click: function (layer) {
+                if (device_remove_status == 0) {
+                    remove_device(layer, false)
+                }
+                if (interface_add_status == 0) {
+                    add_interface(layer, false)
+                }
                 if (request_status == 0 || request_status == 1) {
-                    send_request(layer.data, false)
+                    send_request(layer, false)
                 }
             }.bind(this)
         });
@@ -504,11 +573,12 @@ class NetworkRenderer {
                     if (connection_add_status == 0 || connection_add_status == 1) {
                         add_connection(layer, false);
                     }
+                    if (interface_remove_status == 0) {
+                        remove_interface(layer, false);
+                    }
                 }.bind(this)
             });
         }
-
-        $canvas.drawLayers();
     }
 }
 
