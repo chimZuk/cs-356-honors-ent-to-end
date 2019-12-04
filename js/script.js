@@ -222,6 +222,16 @@ class Network {
 
     //---- Sub-Routine Functional
 
+    get_d_by_id(id) {
+        for (var i in this.devices) {
+            var temp_device = this.devices[i];
+            if (temp_device.id == id) {
+                return { device: temp_device };
+            }
+        }
+        return { device: null };
+    }
+
     get_d_by_ip(ip_address) {
         for (var i in this.devices) {
             var temp_device = this.devices[i];
@@ -361,150 +371,115 @@ class NetworkRenderer {
         $canvas.removeLayerGroup('links');
 
         for (var link in this.links) {
-            var c_d = [];
+            var i1 = $canvas.getLayer('interface_box_' + this.links[link].device_1.dev + '_' + this.links[link].device_1.int);
+            var i2 = $canvas.getLayer('interface_box_' + this.links[link].device_2.dev + '_' + this.links[link].device_2.int);
 
-            var i1 = $canvas.getLayer(this.links[link].device_1.type + '_interface_box_' + this.links[link].device_1.dev + '_' + this.links[link].device_1.int);
-            var i2 = $canvas.getLayer(this.links[link].device_2.type + '_interface_box_' + this.links[link].device_2.dev + '_' + this.links[link].device_2.int);
-
-            c_d.x1 = i1.x;
-            c_d.y1 = i1.y;
-            c_d.x2 = i2.x;
-            c_d.y2 = i2.y;
-            
             $canvas.addLayer({
-                type: 'line',
-                groups: ['common', 'links'],
-                data: { id: this.links[link].id },
-                name: 'link_' + link,
-                layer: true,
-                strokeStyle: '#7383bf',
-                shadowColor: '#222', shadowBlur: 3,
-                strokeWidth: 10,
-                rounded: true,
-                index: 0,
-                x1: c_d.x1, y1: c_d.y1,
-                x2: c_d.x2, y2: c_d.y2,
-                cursors: {
-                    mouseover: 'pointer',
-                    mousedown: 'pointer',
-                    mouseup: 'pointer'
+                type: 'line', layer: true,
+                name: 'link_' + link, groups: ['common', 'links'], data: { id: this.links[link].id },
+                x1: i1.x, y1: i1.y, x2: i2.x, y2: i2.y,
+                strokeStyle: '#7383bf', shadowColor: '#222', shadowBlur: 3, strokeWidth: 10, rounded: true, index: 0,
+                cursors: { mouseover: 'pointer', mousedown: 'pointer', mouseup: 'pointer' },
+
+
+                mouseover: function (layer) {
+                    $canvas.setLayer(layer, {
+                        strokeStyle: '#bcc5e4'
+                    });
                 },
+
+                mouseout: function (layer) {
+                    $canvas.setLayer(layer, {
+                        strokeStyle: '#7383bf'
+                    });
+                },
+
                 click: function (layer) {
                     if (connection_remove_status == 0) {
                         remove_connection(layer.data.id, false)
                     }
-                },
-                mouseover: function (layer) {
-                    $(this).setLayer(layer, {
-                        strokeStyle: '#bcc5e4'
-                    });
-                },
-                mouseout: function (layer) {
-                    $(this).setLayer(layer, {
-                        strokeStyle: '#7383bf'
-                    });
                 }
             });
         }
+        
+        $canvas.drawLayers();
     }
 
     render_device(data, id, x, y) {
         var type = (data.type == "c") ? "client" : (data.type == "r" ? "router" : "server");
         var font = "12pt";
+        var font_family = 'Solway, serif';
         var name = data.name;
         var id = data.id;
 
 
         $canvas.addLayer({
-            type: 'image', source: 'img/' + type + '.png',
-            groups: ['common', id],
-            dragGroups: [id],
-            name: type + '_image' + id, layer: true,
-            x: x, y: y,
-            width: 100, height: 100, fromCenter: true,
-            index: 2,
+            type: 'image', source: 'img/' + type + '.png', layer: true,
+            name: 'image_' + id, groups: [id, 'common'], dragGroups: [id], data: data,
+            x: x, y: y, width: 100, height: 100, fromCenter: true, index: 2,
             shadowColor: '#222', shadowBlur: 3,
-            data: data,
-            cursors: {
-                mouseover: 'pointer',
-                mousedown: 'pointer',
-                mouseup: 'pointer'
-            },
+            cursors: { mouseover: 'pointer', mousedown: 'pointer', mouseup: 'pointer' },
+
+            drag: function (layer) {
+                this.network.get_d_by_id(data.id).coordinates = [layer.x, layer.y];
+                this.render_links();
+            }.bind(this),
+
+            dragstop: function (layer) {
+                this.network.get_d_by_id(data.id).coordinates = [layer.x, layer.y];
+                this.render_links();
+            }.bind(this),
+
             click: function (layer) {
                 if (request_status == 0 || request_status == 1) {
                     send_request(layer.data, false)
                 }
-            },
-            drag: function (layer) {
-                this.network.devices[data.id].coordinates = [layer.x, layer.y];
-                this.render_links();
-            }.bind(this),
-            dragstop: function (layer) {
-                this.network.devices[data.id].coordinates = [layer.x, layer.y];
-                this.render_links();
             }.bind(this)
         });
 
         $canvas.addLayer({
-            type: 'text',
-            groups: ['common', id],
-            name: type + '_name_' + id,
-            layer: true,
-            fillStyle: '#bcc5e4',
-            strokeWidth: 1,
-            x: x, y: y + 73,
-            index: 3,
-            fontSize: font, fontFamily: 'Solway, serif',
-            text: name
+            type: 'text', text: name, layer: true,
+            name: 'name_' + id, groups: [id, 'common'],
+            x: x, y: y + 73, fromCenter: true, index: 3,
+            fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
         });
 
         $canvas.addLayer({
-            type: 'rectangle',
-            groups: ['common', id],
-            name: type + '_name_box_' + id,
-            fillStyle: '#556080',
-            x: x, y: y + 73,
-            index: 1,
-            width: $canvas.measureText(type + '_name_' + id).width * 1.3, height: 22, fromCenter: true,
-            shadowColor: '#222', shadowBlur: 3
+            type: 'rectangle', layer: true,
+            name: 'box_' + id, groups: [id, 'common'],
+            x: x, y: y + 73, width: $canvas.measureText('name_' + id).width * 1.3, height: 22, fromCenter: true, index: 1,
+            fillStyle: '#556080', shadowColor: '#222', shadowBlur: 3
         });
 
         for (var i in data.interfaces) {
             var temp_interface = data.interfaces[i];
-
             var n = data.interfaces.length;
             var y_i = i * 30 - (n / 2 * 30) + 15;
 
             $canvas.addLayer({
-                type: 'rectangle',
-                groups: ['common', id],
-                data: { device: data, interface: temp_interface.id },
-                name: type + '_interface_box_' + id + '_' + temp_interface.id,
-                fillStyle: '#556080',
-                x: x + 48, y: y + y_i,
-                width: 20, height: 20, fromCenter: true,
-                index: 6,
-                shadowColor: '#222', shadowBlur: 3,
-                cursors: {
-                    mouseover: 'pointer',
-                    mousedown: 'pointer',
-                    mouseup: 'pointer'
-                },
+                type: 'rectangle', layer: true,
+                name: 'interface_box_' + id + '_' + temp_interface.id, groups: [id, 'common'], data: { device: data, interface: temp_interface.id },
+                x: x + 48, y: y + y_i, width: 20, height: 20, fromCenter: true, index: 6,
+                fillStyle: '#556080', shadowColor: '#222', shadowBlur: 3,
+                cursors: { mouseover: 'pointer', mousedown: 'pointer', mouseup: 'pointer' },
+
+                mouseover: function (layer) {
+                    $canvas.setLayer(layer, {
+                        fillStyle: '#bcc5e4'
+                    });
+                }.bind(this),
+
+                mouseout: function (layer) {
+                    $canvas.setLayer(layer, {
+                        fillStyle: '#556080'
+                    });
+                }.bind(this),
+
                 click: function (layer) {
                     if (connection_add_status == 0 || connection_add_status == 1) {
                         add_connection(layer, false);
                     }
-                }.bind(this),
-                mouseover: function (layer) {
-                    $(this).setLayer(layer, {
-                        fillStyle: '#bcc5e4'
-                    });
-                },
-                mouseout: function (layer) {
-                    $(this).setLayer(layer, {
-                        fillStyle: '#556080'
-                    });
-                }
+                }.bind(this)
             });
         }
 
