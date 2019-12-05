@@ -30,7 +30,7 @@ function add_device() {
 
 function remove_device(layer, is_initial) {
     device_remove_status = (is_initial) ? 0 : device_remove_status + 1;
-
+    3
     if (device_remove_status == 1) {
         global_network.remove_device(layer.data);
         global_network_view.render_network(global_network);
@@ -126,7 +126,7 @@ function send_request(layer, is_initial) {
 
 //---- Application start
 
-function start_application() {
+function start_applicationn() {
     let network = new Network("Internet");
 
     network.ip_list = app_data.ip_list;
@@ -145,37 +145,54 @@ function start_application() {
     global_network_view = network_view;
 }
 
+function start_application() {
+    let network = new Network("Internet");
+
+    var wifi_router = network.add_device("WiFi Router", "r", [750, 200]);
+    wifi_router.add_interface(network.generate_mac(), null, -1);
+
+    var laptop = network.add_device("Yoga 920", "c", [250, 200]);
+    laptop.add_interface(network.generate_mac(), null, 1);
+
+    network.add_connection(laptop, wifi_router, 0, 0);
+
+    var network_view = new NetworkRenderer(network);
+
+    global_network = network;
+    global_network_view = network_view;
+}
+
 function start_applicationn() {
     let network = new Network("Internet");
 
     var wifi_router = network.add_device("WiFi Router", "r", [100, 100]);
-    wifi_router.add_interface(network.generate_mac(), network.generate_ip(), -1);
-    wifi_router.add_interface(network.generate_mac(), network.generate_ip(), 1);
-    wifi_router.add_interface(network.generate_mac(), network.generate_ip(), 1);
+    wifi_router.add_interface(network.generate_mac(), null, -1);
+    wifi_router.add_interface(network.generate_mac(), null, 1);
+    wifi_router.add_interface(network.generate_mac(), null, 1);
 
     var global_router_1 = network.add_device("Global Router 1", "r", [100, 100]);
-    global_router_1.add_interface(network.generate_mac(), network.generate_ip(), -1);
-    global_router_1.add_interface(network.generate_mac(), network.generate_ip(), 1);
+    global_router_1.add_interface(network.generate_mac(), null, -1);
+    global_router_1.add_interface(network.generate_mac(), null, 1);
 
     var global_router_2 = network.add_device("Global Router 2", "r", [100, 100]);
-    global_router_2.add_interface(network.generate_mac(), network.generate_ip(), -1);
-    global_router_2.add_interface(network.generate_mac(), network.generate_ip(), 1);
+    global_router_2.add_interface(network.generate_mac(), null, -1);
+    global_router_2.add_interface(network.generate_mac(), null, 1);
 
     var global_router_3 = network.add_device("Global Router 3", "r", [100, 100]);
-    global_router_3.add_interface(network.generate_mac(), network.generate_ip(), -1);
-    global_router_3.add_interface(network.generate_mac(), network.generate_ip(), 1);
+    global_router_3.add_interface(network.generate_mac(), null, -1);
+    global_router_3.add_interface(network.generate_mac(), null, 1);
 
     var laptop = network.add_device("Yoga 920", "c", [100, 100]);
-    laptop.add_interface(network.generate_mac(), network.generate_ip(), 1);
+    laptop.add_interface(network.generate_mac(), null, 1);
 
     var phone_1 = network.add_device("Samsung Galaxy S9", "c", [100, 100]);
-    phone_1.add_interface(network.generate_mac(), network.generate_ip(), 1);
+    phone_1.add_interface(network.generate_mac(), null, 1);
 
     var dns_server = network.add_device("DNS Server", "s", [100, 100]);
-    dns_server.add_interface(network.generate_mac(), network.generate_ip(), -1);
+    dns_server.add_interface(network.generate_mac(), null, -1);
 
     var web_server = network.add_device("Web Server", "s", [100, 100]);
-    web_server.add_interface(network.generate_mac(), network.generate_ip(), -1);
+    web_server.add_interface(network.generate_mac(), null, -1);
 
     network.add_connection(laptop, wifi_router, 0, 0);
     network.add_connection(phone_1, wifi_router, 0, 0);
@@ -203,6 +220,7 @@ class Network {
         this.name = name;
         this.devices = [];
         this.links = [];
+        this.subnet_list = [];
         this.ip_list = [];
         this.mac_list = [];
         this.id_count = -1;
@@ -247,7 +265,7 @@ class Network {
     add_interface(device, side) {
         for (var i in this.devices) {
             if (this.devices[i].id == device.id) {
-                this.devices[i].add_interface(this.generate_mac(), this.generate_ip(), side);
+                this.devices[i].add_interface(this.generate_mac(), null, side);
                 break;
             }
         }
@@ -275,23 +293,30 @@ class Network {
     }
 
     add_connection(device_1, device_2, interface_id_1, interface_id_2) {
+        console.log(device_1, device_2, interface_id_1, interface_id_2);
+
         var interface_1 = device_1.get_i_by_id(interface_id_1);
         var interface_2 = device_2.get_i_by_id(interface_id_2);
 
+        console.log(interface_1, interface_2)
+        var subnet = this.generate_subnet(24);
+        console.log(subnet);
+
         this.links.push({
             id: this.generate_id(),
+            subnet: subnet,
             device_1: {
                 dev: device_1.id,
                 type: (device_1.type == "c") ? "client" : (device_1.type == "r" ? "router" : "server"),
                 int: interface_1.id,
-                ip: interface_1.ip_address,
+                ip: device_1.set_ip_address(interface_id_1, this.generate_subnet_ip(subnet), subnet.id),
                 mac: interface_1.mac_address,
             },
             device_2: {
                 dev: device_2.id,
                 type: (device_2.type == "c") ? "client" : (device_2.type == "r" ? "router" : "server"),
                 int: interface_2.id,
-                ip: interface_2.ip_address,
+                ip: device_2.set_ip_address(interface_id_2, this.generate_subnet_ip(subnet), subnet.id),
                 mac: interface_2.mac_address
             }
         });
@@ -354,13 +379,105 @@ class Network {
         return ++this.id_count;
     }
 
-    generate_ip() {
+    generate_mask_parse(mask) {
+        var mask_copy = mask;
+        var mask_array = [0, 0, 0, 0];
+        var i = 0;
+        while (mask_copy > 8) {
+            mask_copy -= 8;
+            mask_array[i] = parseInt(Number("1".repeat(8)), 2);
+            i++;
+        }
+        mask_array[i] = parseInt(Number(String("1".repeat(mask_copy)) + String("0".repeat(8 - mask_copy))), 2);
+        return mask_array;
+    }
+
+    generate_random_ip() {
         let ip_address = (Math.floor(Math.random() * 255) + 1) + "." + (Math.floor(Math.random() * 255) + 0) + "." + (Math.floor(Math.random() * 255) + 0) + "." + (Math.floor(Math.random() * 255) + 0);
         while (this.ip_list.indexOf(ip_address) != -1) {
             ip_address = (Math.floor(Math.random() * 255) + 1) + "." + (Math.floor(Math.random() * 255) + 0) + "." + (Math.floor(Math.random() * 255) + 0) + "." + (Math.floor(Math.random() * 255) + 0);
         }
         this.ip_list.push(ip_address);
         return ip_address;
+    }
+
+    generate_subnet_ip(subnet) {
+        var ip_address = "";
+        var ip_number;
+
+        var subnet = {
+            id: 1,
+            subnet_address: "1.1.1.0",
+            mask_array: [255, 255, 255, 0],
+            ip_list: []
+        }
+
+        for (var i = 0; i < subnet.ip_list.length; i++) {
+            if (!subnet.ip_list[i]) {
+                ip_number = i + 1;
+            }
+        }
+        if (!ip_number) {
+            ip_number = subnet.ip_list.length + 1;
+        }
+
+        var max_number = 1016;
+        for (var i = 0; i < subnet.mask_array.length; i++) {
+            max_number -= subnet.mask_array[i];
+        }
+
+        if (ip_number <= max_number) {
+            var new_ip_number = ip_number;
+
+            while (new_ip_number > 254) {
+                new_ip_number -= 254;
+                ip_address = "254." + ip_address;
+            }
+            ip_address = String(new_ip_number) + "." + ip_address
+        }
+        return ip_address;
+    }
+
+    generate_subnet(mask, is_private = false) {
+        var id;
+
+        for (var i = 0; i < this.subnet_list.length; i++) {
+            if (!this.subnet_list[i]) {
+                id = i + 1;
+            }
+        }
+
+        if (!id) {
+            id = this.subnet_list.length + 1;
+        }
+
+        var subnet_address = "";
+        var mask_array = this.generate_mask_parse(mask);
+
+        if (is_private) {
+            subnet_address += "10.";
+        } else {
+            subnet_address += String(id) + ".";
+        }
+
+        for (var i in mask_array) {
+            if (mask_array[i] == 255) {
+                subnet_address += String(id) + ".";
+            } else {
+                subnet_address += String(0) + ".";
+            }
+        }
+
+        var subnet = {
+            id: id,
+            subnet_address: subnet_address.slice(0, -1),
+            mask_array: copy_array_1d(mask_array),
+            ip_list: []
+        }
+
+        this.subnet_list[id - 1] = copy_object(subnet);
+
+        return subnet;
     }
 
     generate_mac() {
@@ -392,6 +509,16 @@ class Device {
         return null;
     }
 
+    set_ip_address(interface_id, ip_address, subnet_id) {
+        for (var i in this.interfaces) {
+            if (this.interfaces[i].id = interface_id) {
+                this.interfaces[i].ip_address = ip_address;
+                this.interfaces[i].subnet_id = subnet_id;
+                return ip_address;
+            }
+        }
+    }
+
     set_coordinates(coordinates) {
         this.coordinates = coordinates;
     }
@@ -413,6 +540,7 @@ class Device {
 class Interface {
     constructor(id, mac_address, ip_address, side) {
         this.id = id;
+        this.subnet_id = null;
         this.ip_address = (ip_address == null) ? "" : ip_address;
         this.mac_address = mac_address;
         this.side = side;
