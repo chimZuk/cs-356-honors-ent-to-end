@@ -7,4 +7,4 @@ server.get('*', (req, res) => {
     res.redirect('/');
 });
 
-server.listen(8080);
+server.listen(80);
