@@ -145,7 +145,7 @@ function start_applicationn() {
     global_network_view = network_view;
 }
 
-function start_application() {
+function start_applicationn() {
     let network = new Network("Internet");
 
     var wifi_router = network.add_device("WiFi Router", "r", [750, 300]);
@@ -175,7 +175,47 @@ function start_application() {
     global_network_view = network_view;
 }
 
-function start_applicationn() {
+function start_application() {
+    let network = new Network("Internet");
+
+    var wifi_router = network.add_device("WiFi Router", "r", [750, 300]);
+    wifi_router.add_interface(network.generate_mac(), null, -1);
+    wifi_router.add_interface(network.generate_mac(), null, 1);
+
+    var global_router = network.add_device("Global Router", "r", [1050, 300]);
+    global_router.add_interface(network.generate_mac(), null, -1);
+    global_router.add_interface(network.generate_mac(), null, 1);
+
+    var laptop = network.add_device("Yoga 920", "c", [250, 100]);
+    laptop.add_interface(network.generate_mac(), null, 1);
+    network.add_connection(laptop, wifi_router, 0, 0);
+
+    var phone_1 = network.add_device("Samsung Galaxy S9", "c", [250, 300]);
+    phone_1.add_interface(network.generate_mac(), null, 1);
+    network.add_connection(phone_1, wifi_router, 0, 0);
+
+    var phone_2 = network.add_device("iPhone 7", "c", [250, 500]);
+    phone_2.add_interface(network.generate_mac(), null, 1);
+    network.add_connection(phone_2, wifi_router, 0, 0);
+
+    network.add_connection(global_router, wifi_router, 0, 1);
+
+
+
+    var server = network.add_device("Video Server", "s", [1350, 300]);
+    server.add_interface(network.generate_mac(), null, -1);
+    network.add_connection(server, global_router, 0, 1);
+
+
+
+
+    var network_view = new NetworkRenderer(network);
+
+    global_network = network;
+    global_network_view = network_view;
+}
+
+function start_applicationnn() {
     let network = new Network("Internet");
 
     var wifi_router = network.add_device("WiFi Router", "r", [300, 300]);
@@ -369,6 +409,10 @@ class Network {
             }
         }
 
+        this.links.push(link);
+
+        console.log(link.id);
+
         device_1.forwarding_table[device_2_ip] = {
             interface_id: interface_id_1,
             link_id: link.id
@@ -411,33 +455,39 @@ class Network {
             }
         }
 
-        var visited = [];
+        var visited = [link.id];
         var links = [];
 
         for (var i in device_1.forwarding_table) {
-            if (links.indexOf(device_1.forwarding_table[i].link_id) == -1) {
+            if (links.indexOf(device_1.forwarding_table[i].link_id) == -1 && device_1.forwarding_table[i].link_id != null) {
                 links.push(device_1.forwarding_table[i].link_id);
             }
         }
 
         for (var i in links) {
-            visited.push(links[i]);
-            this.update_forwarding_tables(device_1, this.get_l_by_id(links[i]), visited);
+            if (visited.indexOf(links[i]) == -1) {
+                visited.push(links[i]);
+                var link = this.get_l_by_id(links[i]);
+                this.update_forwarding_tables(device_1, link, visited);
+            }
         }
 
+
         links = [];
+
         for (var i in device_2.forwarding_table) {
-            if (links.indexOf(device_2.forwarding_table[i].link_id) == -1) {
+            if (links.indexOf(device_2.forwarding_table[i].link_id) == -1 && device_2.forwarding_table[i].link_id != null) {
                 links.push(device_2.forwarding_table[i].link_id);
             }
         }
 
         for (var i in links) {
-            visited.push(links[i]);
-            this.update_forwarding_tables(device_2, this.get_l_by_id(links[i]), visited);
+            if (visited.indexOf(links[i]) == -1) {
+                visited.push(links[i]);
+                var link = this.get_l_by_id(links[i]);
+                this.update_forwarding_tables(device_2, link, visited);
+            }
         }
-
-        this.links.push(link);
     }
 
     remove_connection(link) {
@@ -445,6 +495,36 @@ class Network {
             if (this.links[i].id == link) {
                 this.links.splice(i, 1);
                 break;
+            }
+        }
+    }
+
+    update_forwarding_tables(device, link, visited) {
+        var temp_device_info = Number(link.device_1.dev) != Number(device.id) ? link.device_1 : link.device_2;
+        var temp_device = this.get_d_by_id(temp_device_info.dev);
+
+        for (var i in device.forwarding_table) {
+            if (temp_device.get_i_by_ip(i) == null && !temp_device.forwarding_table[i]) {
+                temp_device.forwarding_table[i] = {
+                    interface_id: temp_device_info.int,
+                    link_id: link.id
+                }
+            }
+        }
+
+        var links = [];
+
+        for (var i in temp_device.forwarding_table) {
+            if (links.indexOf(temp_device.forwarding_table[i].link_id) == -1 && temp_device.forwarding_table[i].link_id != null) {
+                links.push(temp_device.forwarding_table[i].link_id);
+            }
+        }
+
+        for (var i in links) {
+            if (visited.indexOf(links[i]) == -1) {
+                visited.push(links[i]);
+                var link = this.get_l_by_id(links[i]);
+                this.update_forwarding_tables(temp_device, link, visited);
             }
         }
     }
