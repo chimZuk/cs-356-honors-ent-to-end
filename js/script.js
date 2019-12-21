@@ -350,12 +350,6 @@ class Network {
         var device_1_ip = device_1.set_ip_address(interface_id_1, d1_ip, subnet.id);
         var device_2_ip = device_2.set_ip_address(interface_id_2, d2_ip, subnet.id);
 
-        console.log(device_1_ip);
-        console.log(device_2_ip);
-
-        device_1.forwarding_table[device_2_ip] = interface_id_1;
-        device_2.forwarding_table[device_1_ip] = interface_id_2;
-
         var link = {
             id: this.generate_id(),
             subnet: subnet,
@@ -375,6 +369,67 @@ class Network {
             }
         }
 
+        console.log(device_1_ip);
+        console.log(device_2_ip);
+
+        device_1.forwarding_table[device_2_ip] = {
+            interface_id: interface_id_1,
+            link_id: link.id
+        };
+
+        device_2.forwarding_table[device_1_ip] = {
+            interface_id: interface_id_2,
+            link_id: link.id
+        };
+
+        for (var i in device_1.forwarding_table) {
+            var temp_interface = device_2.get_i_by_ip(i);
+
+            if (temp_interface == null) {
+                device_2.forwarding_table[i] = {
+                    interface_id: interface_id_2,
+                    link_id: link.id
+                };
+            } else {
+                device_2.forwarding_table[i] = {
+                    interface_id: interface_id_2,
+                    link_id: null
+                };
+            }
+        }
+
+        for (var i in device_2.forwarding_table) {
+            var temp_interface = device_1.get_i_by_ip(i);
+
+            if (temp_interface == null) {
+                device_1.forwarding_table[i] = {
+                    interface_id: interface_id_1,
+                    link_id: link.id
+                };
+            } else {
+                device_1.forwarding_table[i] = {
+                    interface_id: interface_id_1,
+                    link_id: null
+                };
+            }
+        }
+
+        var visited_interfaces = [device_1_ip, device_2_ip];
+
+        for (var i in device_1.forwarding_table) {
+            if (visited_interfaces.indexOf(i) == -1) {
+                this.update_forwarding_tables(device_1, i, copy_array_1d(visited_interfaces));
+            }
+        }
+        
+        for (var i in device_2.forwarding_table) {
+            if (visited_interfaces.indexOf(i) == -1) {
+                this.update_forwarding_tables(device_2, i, copy_array_1d(visited_interfaces));
+            }
+        }
+
+
+
         this.links.push(link);
     }
 
@@ -386,6 +441,49 @@ class Network {
             }
         }
     }
+
+    update_forwarding_tables(device, ip_address, visited) {
+        var device_1 = this.get_d_by_ip(ip_address);
+        var interface_1 = device_1.interface_d;
+        visited.push(ip_address);
+
+        for (var i in device.forwarding_table) {
+            if (i != interface_1.ip_address) {
+                device_1.device.forwarding_table[i] = {
+                    interface_id: interface_1.id,
+                    link_id: null
+                }
+            }
+        }
+
+        for (var i in device_1.forwarding_table) {
+            if (visited.indexOf(i) == -1) {
+                this.update_forwarding_tables(device_1, i, copy_array_1d(visited));
+            }
+        }
+
+        return;
+    }
+
+    /*
+    if (visited.indexOf(i) == -1) {
+                var temp_interface = device_1.interface_d;
+
+                if (temp_interface == null) {
+                    device_1.device.forwarding_table[i] = {
+                        interface_id: 0,
+                        link_id: 0
+                    };
+                } else {
+                    device_1.device.forwarding_table[i] = {
+                        interface_id: null,
+                        link_id: null
+                    };
+                }
+
+                visited.push(i);
+            }
+    */
 
     //---- Sub-Routine Functional
 
@@ -577,6 +675,15 @@ class Device {
     get_i_by_id(id) {
         for (var i in this.interfaces) {
             if (this.interfaces[i].id == id) {
+                return this.interfaces[i];
+            }
+        }
+        return null;
+    }
+
+    get_i_by_ip(ip_address) {
+        for (var i in this.interfaces) {
+            if (this.interfaces[i].ip_address == ip_address) {
                 return this.interfaces[i];
             }
         }
