@@ -145,24 +145,29 @@ function start_applicationn() {
     global_network_view = network_view;
 }
 
-function start_applicationn() {
+function start_application() {
     let network = new Network("Internet");
 
     var wifi_router = network.add_device("WiFi Router", "r", [750, 300]);
     wifi_router.add_interface(network.generate_mac(), null, -1);
+    wifi_router.add_interface(network.generate_mac(), null, 1);
+
+    var global_router = network.add_device("Global Router", "r", [1250, 300]);
+    global_router.add_interface(network.generate_mac(), null, -1);
 
     var laptop = network.add_device("Yoga 920", "c", [250, 100]);
     laptop.add_interface(network.generate_mac(), null, 1);
+    network.add_connection(laptop, wifi_router, 0, 0);
 
     var phone_1 = network.add_device("Samsung Galaxy S9", "c", [250, 300]);
     phone_1.add_interface(network.generate_mac(), null, 1);
+    network.add_connection(phone_1, wifi_router, 0, 0);
 
     var phone_2 = network.add_device("iPhone 7", "c", [250, 500]);
     phone_2.add_interface(network.generate_mac(), null, 1);
-
-    network.add_connection(laptop, wifi_router, 0, 0);
-    network.add_connection(phone_1, wifi_router, 0, 0);
     network.add_connection(phone_2, wifi_router, 0, 0);
+
+    network.add_connection(global_router, wifi_router, 0, 1);
 
     var network_view = new NetworkRenderer(network);
 
@@ -170,7 +175,7 @@ function start_applicationn() {
     global_network_view = network_view;
 }
 
-function start_application() {
+function start_applicationn() {
     let network = new Network("Internet");
 
     var wifi_router = network.add_device("WiFi Router", "r", [300, 300]);
@@ -344,6 +349,12 @@ class Network {
 
         var device_1_ip = device_1.set_ip_address(interface_id_1, d1_ip, subnet.id);
         var device_2_ip = device_2.set_ip_address(interface_id_2, d2_ip, subnet.id);
+
+        console.log(device_1_ip);
+        console.log(device_2_ip);
+
+        device_1.forwarding_table[device_2_ip] = interface_id_1;
+        device_2.forwarding_table[device_1_ip] = interface_id_2;
 
         var link = {
             id: this.generate_id(),
@@ -558,6 +569,7 @@ class Device {
         this.name = name;
         this.type = type;
         this.interfaces = [];
+        this.forwarding_table = [];
         this.id = id;
         this.id_count = -1;
     }
