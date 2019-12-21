@@ -369,9 +369,6 @@ class Network {
             }
         }
 
-        console.log(device_1_ip);
-        console.log(device_2_ip);
-
         device_1.forwarding_table[device_2_ip] = {
             interface_id: interface_id_1,
             link_id: link.id
@@ -414,21 +411,31 @@ class Network {
             }
         }
 
-        var visited_interfaces = [device_1_ip, device_2_ip];
+        var visited = [];
+        var links = [];
 
         for (var i in device_1.forwarding_table) {
-            if (visited_interfaces.indexOf(i) == -1) {
-                this.update_forwarding_tables(device_1, i, copy_array_1d(visited_interfaces));
+            if (links.indexOf(device_1.forwarding_table[i].link_id) == -1) {
+                links.push(device_1.forwarding_table[i].link_id);
             }
         }
-        
+
+        for (var i in links) {
+            visited.push(links[i]);
+            this.update_forwarding_tables(device_1, this.get_l_by_id(links[i]), visited);
+        }
+
+        links = [];
         for (var i in device_2.forwarding_table) {
-            if (visited_interfaces.indexOf(i) == -1) {
-                this.update_forwarding_tables(device_2, i, copy_array_1d(visited_interfaces));
+            if (links.indexOf(device_2.forwarding_table[i].link_id) == -1) {
+                links.push(device_2.forwarding_table[i].link_id);
             }
         }
 
-
+        for (var i in links) {
+            visited.push(links[i]);
+            this.update_forwarding_tables(device_2, this.get_l_by_id(links[i]), visited);
+        }
 
         this.links.push(link);
     }
@@ -442,50 +449,41 @@ class Network {
         }
     }
 
-    update_forwarding_tables(device, ip_address, visited) {
-        var device_1 = this.get_d_by_ip(ip_address);
-        var interface_1 = device_1.interface_d;
-        visited.push(ip_address);
+    update_forwarding_tabless(device, current_ip_address, visited) {
+        visited.push(current_ip_address);
 
-        for (var i in device.forwarding_table) {
-            if (i != interface_1.ip_address) {
-                device_1.device.forwarding_table[i] = {
+        var temp_device = this.get_d_by_ip(current_ip_address);
+        var interface_1 = temp_device.interface_d;
+
+        for (var ip_address in device.forwarding_table) {
+            if (ip_address != interface_1.ip_address) {
+                temp_device.device.forwarding_table[ip_address] = {
                     interface_id: interface_1.id,
                     link_id: null
                 }
             }
         }
 
-        for (var i in device_1.forwarding_table) {
-            if (visited.indexOf(i) == -1) {
-                this.update_forwarding_tables(device_1, i, copy_array_1d(visited));
+        for (var ip_address in temp_device.forwarding_table) {
+            if (visited.indexOf(ip_address) == -1) {
+                this.update_forwarding_tables(temp_device, ip_address, copy_array_1d(visited));
             }
         }
 
         return;
     }
 
-    /*
-    if (visited.indexOf(i) == -1) {
-                var temp_interface = device_1.interface_d;
-
-                if (temp_interface == null) {
-                    device_1.device.forwarding_table[i] = {
-                        interface_id: 0,
-                        link_id: 0
-                    };
-                } else {
-                    device_1.device.forwarding_table[i] = {
-                        interface_id: null,
-                        link_id: null
-                    };
-                }
-
-                visited.push(i);
-            }
-    */
-
     //---- Sub-Routine Functional
+
+    get_l_by_id(id) {
+        for (var i in this.links) {
+            var temp_link = this.links[i];
+            if (temp_link.id == id) {
+                return temp_link;
+            }
+        }
+        return null;
+    }
 
     get_s_by_id(id) {
         for (var i in this.subnet_list) {
