@@ -145,35 +145,6 @@ function start_applicationn() {
     global_network_view = network_view;
 }
 
-function start_applicationn() {
-    let network = new Network("Internet");
-
-    var wifi_router = network.add_device("WiFi Router", "r", [750, 300]);
-    wifi_router.add_interface(network.generate_mac(), null, -1);
-    wifi_router.add_interface(network.generate_mac(), null, 1);
-
-    var global_router = network.add_device("Global Router", "r", [1250, 300]);
-    global_router.add_interface(network.generate_mac(), null, -1);
-
-    var laptop = network.add_device("Yoga 920", "c", [250, 100]);
-    laptop.add_interface(network.generate_mac(), null, 1);
-    network.add_connection(laptop, wifi_router, 0, 0);
-
-    var phone_1 = network.add_device("Samsung Galaxy S9", "c", [250, 300]);
-    phone_1.add_interface(network.generate_mac(), null, 1);
-    network.add_connection(phone_1, wifi_router, 0, 0);
-
-    var phone_2 = network.add_device("iPhone 7", "c", [250, 500]);
-    phone_2.add_interface(network.generate_mac(), null, 1);
-    network.add_connection(phone_2, wifi_router, 0, 0);
-
-    network.add_connection(global_router, wifi_router, 0, 1);
-
-    var network_view = new NetworkRenderer(network);
-
-    global_network = network;
-    global_network_view = network_view;
-}
 
 function start_application() {
     let network = new Network("Internet");
@@ -216,59 +187,12 @@ function start_application() {
 
     global_network = network;
     global_network_view = network_view;
+
+    start_request();
 }
 
 function start_request() {
-    global_network.start_request();
-}
-
-function start_applicationnn() {
-    let network = new Network("Internet");
-
-    var wifi_router = network.add_device("WiFi Router", "r", [300, 300]);
-    wifi_router.add_interface(network.generate_mac(), null, -1);
-    wifi_router.add_interface(network.generate_mac(), null, 1);
-    wifi_router.add_interface(network.generate_mac(), null, 1);
-
-    var global_router_1 = network.add_device("Global Router 1", "r", [500, 100]);
-    global_router_1.add_interface(network.generate_mac(), null, -1);
-    global_router_1.add_interface(network.generate_mac(), null, 1);
-
-    var global_router_2 = network.add_device("Global Router 2", "r", [500, 500]);
-    global_router_2.add_interface(network.generate_mac(), null, -1);
-    global_router_2.add_interface(network.generate_mac(), null, 1);
-
-    var global_router_3 = network.add_device("Global Router 3", "r", [700, 500]);
-    global_router_3.add_interface(network.generate_mac(), null, -1);
-    global_router_3.add_interface(network.generate_mac(), null, 1);
-
-    var laptop = network.add_device("Yoga 920", "c", [100, 100]);
-    laptop.add_interface(network.generate_mac(), null, 1);
-
-    var phone_1 = network.add_device("Samsung Galaxy S9", "c", [100, 500]);
-    phone_1.add_interface(network.generate_mac(), null, 1);
-
-    var dns_server = network.add_device("DNS Server", "s", [700, 100]);
-    dns_server.add_interface(network.generate_mac(), null, -1);
-
-    var web_server = network.add_device("Web Server", "s", [900, 500]);
-    web_server.add_interface(network.generate_mac(), null, -1);
-
-    network.add_connection(laptop, wifi_router, 0, 0);
-    network.add_connection(phone_1, wifi_router, 0, 0);
-
-    network.add_connection(wifi_router, global_router_1, 1, 0);
-    network.add_connection(wifi_router, global_router_2, 2, 0);
-
-    network.add_connection(dns_server, global_router_1, 0, 1);
-    network.add_connection(global_router_2, global_router_3, 1, 0);
-
-    network.add_connection(web_server, global_router_3, 0, 1);
-
-    var network_view = new NetworkRenderer(network);
-
-    global_network = network;
-    global_network_view = network_view;
+    global_network.start_request("4.4.4.2", "2.2.2.1", true);
 }
 
 //---- End of Application start
@@ -284,6 +208,71 @@ class Network {
         this.ip_list = [];
         this.mac_list = [];
         this.id_count = -1;
+
+    }
+
+    start_request(start, end, response) {
+        var start_data = this.get_d_by_ip(start);
+        var start_device = start_data.device;
+        var temp_link = this.get_l_by_id(start_device.forwarding_table[end].link_id);
+
+        var src = (temp_link.device_1.dev == start_device.id) ? {
+            mac: temp_link.device_1.mac,
+            ip: temp_link.device_1.ip,
+            dev: temp_link.device_1.dev
+        } : {
+                mac: temp_link.device_2.mac,
+                ip: temp_link.device_2.ip,
+                dev: temp_link.device_2.dev
+            };
+
+        var dst = (temp_link.device_1.dev != start_device.id) ? {
+            mac: temp_link.device_1.mac,
+            ip: temp_link.device_1.ip,
+            dev: temp_link.device_1.dev
+        } : {
+                mac: temp_link.device_2.mac,
+                ip: temp_link.device_2.ip,
+                dev: temp_link.device_2.dev
+            };
+
+        console.log("SRC IP:", start, "SRC MAC:", src.mac);
+        console.log("DST IP:", end, "DST MAC:", dst.mac);
+
+        while (temp_link != null) {
+            start_device = (temp_link.device_1.dev != start_device.id) ? this.get_d_by_id(temp_link.device_1.dev) : this.get_d_by_id(temp_link.device_2.dev);
+            temp_link = this.get_l_by_id(start_device.forwarding_table[end].link_id);
+
+
+            if (temp_link != null) {
+                src = (temp_link.device_1.dev == start_device.id) ? {
+                    mac: temp_link.device_1.mac,
+                    ip: temp_link.device_1.ip,
+                    dev: temp_link.device_1.dev
+                } : {
+                        mac: temp_link.device_2.mac,
+                        ip: temp_link.device_2.ip,
+                        dev: temp_link.device_2.dev
+                    };
+
+                dst = (temp_link.device_1.dev != start_device.id) ? {
+                    mac: temp_link.device_1.mac,
+                    ip: temp_link.device_1.ip,
+                    dev: temp_link.device_1.dev
+                } : {
+                        mac: temp_link.device_2.mac,
+                        ip: temp_link.device_2.ip,
+                        dev: temp_link.device_2.dev
+                    };
+
+                console.log("SRC IP:", start, "SRC MAC:", src.mac);
+                console.log("DST IP:", end, "DST MAC:", dst.mac);
+            }
+        }
+
+        if (response) {
+            this.start_request(end, start, false);
+        }
     }
 
     //---- Network Creation Functional
@@ -417,8 +406,6 @@ class Network {
         }
 
         this.links.push(link);
-
-        console.log(link.id);
 
         device_1.forwarding_table[device_2_ip] = {
             interface_id: interface_id_1,
