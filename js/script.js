@@ -117,6 +117,7 @@ var request_devices;
 function send_request(layer, is_initial) {
     request_status = (is_initial) ? 0 : request_status + 1;
     if (is_initial) {
+        global_network_view.render_network(global_network);
         request_devices = [];
         src_block.fadeIn();
     } else {
@@ -161,15 +162,105 @@ function process_hops(data) {
 
 function table_view() {
     var html = "";
-
-    console.log($canvas.getLayer('link_10'));
+    var font = "12pt";
+    var font_family = 'Solway, serif';
 
     html += "<div style='float: left;' class='hops'>";
     html += `<h4>From ` + last_data[0].name + ` to ` + last_data[1].name + `</h4>`;
     html += "<h4>Request:</h4>";
     html += "<table cellspacing='0'>";
+
     for (var i in last_request) {
         var hop = last_request[i];
+
+        $canvas.setLayer('link_' + hop.link.id, {
+            strokeStyle: '#774c5d',
+            mouseover: function () { },
+
+            mouseout: function () { },
+
+            click: function () { }
+        });
+
+        $canvas.setLayer('interface_box_' + hop.dev_src.id + '_' + hop.int_src.id, {
+            fillStyle: '#774c5d',
+            mouseover: function () { },
+
+            mouseout: function () { },
+
+            click: function () { }
+        });
+
+        $canvas.setLayer('interface_box_' + hop.dev_dst.id + '_' + hop.int_dst.id, {
+            fillStyle: '#774c5d',
+            mouseover: function () { },
+
+            mouseout: function () { },
+
+            click: function () { }
+        });
+
+        var layer = $canvas.getLayer('interface_box_' + hop.dev_src.id + '_' + hop.int_src.id)
+        var id = hop.mac_src;
+
+        $canvas.addLayer({
+            type: 'text', text: layer.data.interface_data.mac_address, layer: true,
+            name: 'popup_' + id, groups: ['common', 'popup'],
+            x: layer.x, y: layer.y - 30, fromCenter: true,
+            fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+        });
+
+        $canvas.addLayer({
+            type: 'rectangle', layer: true,
+            name: 'popup_body_' + id, groups: ['common', 'popup'],
+            x: layer.x, y: layer.y - 30, width: $canvas.measureText('popup_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+            fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+        });
+
+        $canvas.addLayer({
+            type: 'text', text: layer.data.interface_data.ip_address, layer: true,
+            name: 'popup_1_' + id, groups: ['popup'],
+            x: layer.x, y: layer.y - 55, fromCenter: true,
+            fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+        });
+
+        $canvas.addLayer({
+            type: 'rectangle', layer: true,
+            name: 'popup_1_body_' + id, groups: ['common', 'popup'],
+            x: layer.x, y: layer.y - 55, width: $canvas.measureText('popup_1_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+            fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+        });
+
+        layer = $canvas.getLayer('interface_box_' + hop.dev_dst.id + '_' + hop.int_dst.id)
+        id = hop.mac_dst;
+
+        $canvas.addLayer({
+            type: 'text', text: layer.data.interface_data.mac_address, layer: true,
+            name: 'popup_' + id, groups: ['common', 'popup'],
+            x: layer.x, y: layer.y + 30, fromCenter: true,
+            fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+        });
+
+        $canvas.addLayer({
+            type: 'rectangle', layer: true,
+            name: 'popup_body_' + id, groups: ['common', 'popup'],
+            x: layer.x, y: layer.y + 30, width: $canvas.measureText('popup_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+            fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+        });
+
+        $canvas.addLayer({
+            type: 'text', text: layer.data.interface_data.ip_address, layer: true,
+            name: 'popup_1_' + id, groups: ['popup'],
+            x: layer.x, y: layer.y + 55, fromCenter: true,
+            fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+        });
+
+        $canvas.addLayer({
+            type: 'rectangle', layer: true,
+            name: 'popup_1_body_' + id, groups: ['common', 'popup'],
+            x: layer.x, y: layer.y + 55, width: $canvas.measureText('popup_1_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+            fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+        });
 
         html += "<tr>"
         html += "<td rowspan='2'>Hop " + (Number(i) + Number(1)) + "</td>"
@@ -194,6 +285,7 @@ function table_view() {
     html += `<h4>From ` + last_data[1].name + ` to ` + last_data[0].name + `</h4>`;
     html += "<h4>Response:</h4>";
     html += "<table>";
+
     for (var i in last_response) {
         var hop = last_response[i];
 
@@ -217,6 +309,7 @@ function table_view() {
     html += "</div>";
 
     hops_content.html(html);
+    $canvas.drawLayers();
 }
 
 function step_view() {
@@ -310,39 +403,39 @@ function start_application(choice) {
 function huge_topology() {
     let network = new Network("Internet");
 
-    var wifi_router = network.add_device("WiFi Router", "r", [500, 300]);
+    var wifi_router = network.add_device("WiFi Router", "r", [525, 300]);
     wifi_router.add_interface(network.generate_mac(), null, -1);
     wifi_router.add_interface(network.generate_mac(), null, 1);
     wifi_router.add_interface(network.generate_mac(), null, 1);
 
-    var homework_router = network.add_device("Homework Router", "r", [1000, 200]);
+    var homework_router = network.add_device("Homework Router", "r", [1275, 200]);
     homework_router.add_interface(network.generate_mac(), null, -1);
     homework_router.add_interface(network.generate_mac(), null, 1);
 
-    var global_router_1 = network.add_device("Global Router 1", "r", [750, 200]);
+    var global_router_1 = network.add_device("Global Router 1", "r", [850, 200]);
     global_router_1.add_interface(network.generate_mac(), null, -1);
     global_router_1.add_interface(network.generate_mac(), null, 1);
 
-    var global_router_2 = network.add_device("Global Router 2", "r", [750, 400]);
+    var global_router_2 = network.add_device("Global Router 2", "r", [850, 400]);
     global_router_2.add_interface(network.generate_mac(), null, -1);
     global_router_2.add_interface(network.generate_mac(), null, 1);
 
-    var laptop = network.add_device("Yoga 920", "c", [250, 100]);
+    var laptop = network.add_device("Yoga 920", "c", [100, 100]);
     laptop.add_interface(network.generate_mac(), null, 1);
 
-    var phone_1 = network.add_device("Samsung Galaxy S9", "c", [250, 300]);
+    var phone_1 = network.add_device("Samsung Galaxy S9", "c", [100, 300]);
     phone_1.add_interface(network.generate_mac(), null, 1);
 
-    var phone_2 = network.add_device("iPhone 7", "c", [250, 500]);
+    var phone_2 = network.add_device("iPhone 7", "c", [100, 500]);
     phone_2.add_interface(network.generate_mac(), null, 1);
 
-    var phone_3 = network.add_device("iPhone X", "c", [1250, 100]);
+    var phone_3 = network.add_device("iPhone X", "c", [1800, 100]);
     phone_3.add_interface(network.generate_mac(), null, -1);
 
-    var phone_4 = network.add_device("Xiaomi Redmi S2", "c", [1250, 300]);
+    var phone_4 = network.add_device("Xiaomi Redmi S2", "c", [1800, 300]);
     phone_4.add_interface(network.generate_mac(), null, -1);
 
-    var server = network.add_device("Video Server", "s", [1000, 400]);
+    var server = network.add_device("Video Server", "s", [1275, 400]);
     server.add_interface(network.generate_mac(), null, -1);
 
     network.add_connection(global_router_2, wifi_router, 0, 2);
@@ -447,9 +540,9 @@ class Network {
             mac_src: src.mac,
             mac_dst: dst.mac,
             dev_src: this.get_d_by_mac(src.mac).device,
-            dev_dst: this.get_d_by_mac(src.mac).device,
+            dev_dst: this.get_d_by_mac(dst.mac).device,
             int_src: this.get_d_by_mac(src.mac).interface_d,
-            int_dst: this.get_d_by_mac(src.mac).interface_d,
+            int_dst: this.get_d_by_mac(dst.mac).interface_d,
             link: temp_link
         });
 
@@ -485,9 +578,9 @@ class Network {
                     mac_src: src.mac,
                     mac_dst: dst.mac,
                     dev_src: this.get_d_by_mac(src.mac).device,
-                    dev_dst: this.get_d_by_mac(src.mac).device,
+                    dev_dst: this.get_d_by_mac(dst.mac).device,
                     int_src: this.get_d_by_mac(src.mac).interface_d,
-                    int_dst: this.get_d_by_mac(src.mac).interface_d,
+                    int_dst: this.get_d_by_mac(dst.mac).interface_d,
                     link: temp_link
                 });
             }
@@ -1157,7 +1250,6 @@ class NetworkRenderer {
             var index = (side == -1) ? l_i++ : r_i++;
 
             var y_i = index * 30 - (n / 2 * 30) + 15;
-
             $canvas.addLayer({
                 type: 'rectangle', layer: true,
                 name: 'interface_box_' + id + '_' + temp_interface.id, groups: [id, 'common'], dragGroups: [id], data: { device: data, interface_data: temp_interface, interface: temp_interface.id },
