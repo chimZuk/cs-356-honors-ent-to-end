@@ -126,33 +126,31 @@ function send_request(layer, is_initial) {
 
 //---- Application start
 
-function start_applicationn() {
-    let network = new Network("Internet");
+function start_application(choice) {
 
-    network.ip_list = app_data.ip_list;
-    network.mac_list = app_data.mac_list;
-    network.links = app_data.links;
-    network.id_count = app_data.id_count;
-
-    for (var i in app_data.devices) {
-        network.load_device(app_data.devices[i]);
+    switch (choice) {
+        case 1: {
+            small_topology();
+            break;
+        }
+        case 2: {
+            huge_topology();
+            break;
+        }
     }
-
-    var network_view = new NetworkRenderer(network);
-    network_view.render_network(network);
-
-    global_network = network;
-    global_network_view = network_view;
 }
 
-
-function start_application() {
+function huge_topology() {
     let network = new Network("Internet");
 
     var wifi_router = network.add_device("WiFi Router", "r", [500, 300]);
     wifi_router.add_interface(network.generate_mac(), null, -1);
     wifi_router.add_interface(network.generate_mac(), null, 1);
     wifi_router.add_interface(network.generate_mac(), null, 1);
+
+    var homework_router = network.add_device("Homework Router", "r", [1000, 200]);
+    homework_router.add_interface(network.generate_mac(), null, -1);
+    homework_router.add_interface(network.generate_mac(), null, 1);
 
     var global_router_1 = network.add_device("Global Router 1", "r", [750, 200]);
     global_router_1.add_interface(network.generate_mac(), null, -1);
@@ -161,6 +159,53 @@ function start_application() {
     var global_router_2 = network.add_device("Global Router 2", "r", [750, 400]);
     global_router_2.add_interface(network.generate_mac(), null, -1);
     global_router_2.add_interface(network.generate_mac(), null, 1);
+
+    var laptop = network.add_device("Yoga 920", "c", [250, 100]);
+    laptop.add_interface(network.generate_mac(), null, 1);
+
+    var phone_1 = network.add_device("Samsung Galaxy S9", "c", [250, 300]);
+    phone_1.add_interface(network.generate_mac(), null, 1);
+
+    var phone_2 = network.add_device("iPhone 7", "c", [250, 500]);
+    phone_2.add_interface(network.generate_mac(), null, 1);
+
+    var phone_3 = network.add_device("iPhone X", "c", [1250, 100]);
+    phone_3.add_interface(network.generate_mac(), null, -1);
+
+    var phone_4 = network.add_device("Xiaomi Redmi S2", "c", [1250, 300]);
+    phone_4.add_interface(network.generate_mac(), null, -1);
+
+    network.add_connection(global_router_1, wifi_router, 0, 1);
+    network.add_connection(global_router_2, wifi_router, 0, 2);
+    network.add_connection(phone_1, wifi_router, 0, 0);
+    network.add_connection(laptop, wifi_router, 0, 0);
+    network.add_connection(phone_2, wifi_router, 0, 0);
+    network.add_connection(global_router_1, homework_router, 1, 0);
+    network.add_connection(homework_router, phone_3, 1, 0);
+    network.add_connection(homework_router, phone_4, 1, 0);
+
+    var server = network.add_device("Video Server", "s", [1000, 400]);
+    server.add_interface(network.generate_mac(), null, -1);
+    network.add_connection(server, global_router_2, 0, 1);
+
+    var network_view = new NetworkRenderer(network);
+
+    global_network = network;
+    global_network_view = network_view;
+
+    start_request();
+}
+
+function small_topology() {
+    let network = new Network("Internet");
+
+    var wifi_router = network.add_device("WiFi Router", "r", [500, 300]);
+    wifi_router.add_interface(network.generate_mac(), null, -1);
+    wifi_router.add_interface(network.generate_mac(), null, 1);
+
+    var global_router_1 = network.add_device("Global Router 1", "r", [750, 300]);
+    global_router_1.add_interface(network.generate_mac(), null, -1);
+    global_router_1.add_interface(network.generate_mac(), null, 1);
 
     var laptop = network.add_device("Yoga 920", "c", [250, 100]);
     laptop.add_interface(network.generate_mac(), null, 1);
@@ -175,13 +220,10 @@ function start_application() {
     network.add_connection(phone_2, wifi_router, 0, 0);
 
     network.add_connection(global_router_1, wifi_router, 0, 1);
-    network.add_connection(global_router_2, wifi_router, 0, 2);
 
-
-
-    var server = network.add_device("Video Server", "s", [1000, 500]);
+    var server = network.add_device("Video Server", "s", [1000, 300]);
     server.add_interface(network.generate_mac(), null, -1);
-    network.add_connection(server, global_router_2, 0, 1);
+    network.add_connection(server, global_router_1, 0, 1);
 
     var network_view = new NetworkRenderer(network);
 
@@ -192,7 +234,7 @@ function start_application() {
 }
 
 function start_request() {
-    global_network.start_request("4.4.4.2", "2.2.2.1", true);
+    global_network.start_request("3.3.3.2", "2.2.2.1", true);
 }
 
 //---- End of Application start
@@ -1083,5 +1125,5 @@ function copy_object(obj1) {
     return obj3;
 }
 
-start_application();
+start_application(1);
 toggle_toolbar(false);

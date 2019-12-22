@@ -18,7 +18,7 @@
                 <div class="hops-actions" id="hops-actions">
                     <a onclick="send_request(null, true);">Start Request</a>
                 </div>
-                <div class="network-actions" id="network-actions">
+                <div class="network-actions" id="network-actions" style="display: none;">
                     <a onclick="show_dialog('nd');">Add Device</a>
                     <a onclick="remove_device(null, true);">Remove Device</a>
                     <a onclick="add_interface(null, null, true);">Add Interface</a>
@@ -26,6 +26,10 @@
                     <a onclick="add_connection(null, true);">Add Link</a>
                     <a onclick="remove_connection(null, true);">Remove Link</a>
                     <a onclick="save_data();">Save</a>
+                </div>
+                <div class="network-actions" id="topology-actions">
+                    <a onclick="start_application(1);">Pre-load small topology</a>
+                    <a onclick="start_application(2);">Pre-load big topology</a>
                 </div>
                 <div class="toggle-toolbar">
                     <a id="open-window" onclick="toggle_toolbar(true);">Show Hops Details</a>
