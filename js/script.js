@@ -3,6 +3,11 @@ var open_window_toggle = $("#open-window");
 var close_window_toggle = $("#close-window");
 var hop_window_content = $("#hops-window-content");
 
+var src_block = $("#src-block");
+var dst_block = $("#dst-block");
+var src_device = $("#src-device");
+var dst_device = $("#dst-device");
+
 var $canvas = $("#network-canvas");
 var network_canvas = $("#network-canvas")[0];
 var network_canvas_context = network_canvas.getContext('2d');
@@ -30,7 +35,7 @@ function add_device() {
 
 function remove_device(layer, is_initial) {
     device_remove_status = (is_initial) ? 0 : device_remove_status + 1;
-    3
+
     if (device_remove_status == 1) {
         global_network.remove_device(layer.data);
         global_network_view.render_network(global_network);
@@ -111,14 +116,35 @@ function send_request(layer, is_initial) {
     request_status = (is_initial) ? 0 : request_status + 1;
     if (is_initial) {
         request_devices = [];
+        src_block.fadeIn();
     } else {
         request_devices.push(layer.data);
+        if (request_status == 1) {
+            src_device.html(layer.data.name);
+        } else {
+            dst_device.html(layer.data.name);
+        }
+        dst_block.fadeIn();
     }
 
     if (request_status == 2) {
-        console.log(request_devices);
-        console.log(global_network.devices);
+        process_hops(request_devices);
+        src_block.fadeOut(function () {
+            dst_block.fadeOut(function () {
+                src_device.html("");
+                dst_device.html("");
+            });
+        });
     }
+}
+
+function process_hops(data) {
+    toggle_toolbar(true);
+    console.log(data);
+    var src = data[0].interfaces[data[0].forwarding_table[data[1].interfaces[0].ip_address].interface_id];
+    var dst = data[1].interfaces[data[1].forwarding_table[data[0].interfaces[0].ip_address].interface_id];
+
+    global_network.start_request(src.ip_address, dst.ip_address, true);
 }
 
 //---- End of Hops Start
@@ -127,7 +153,6 @@ function send_request(layer, is_initial) {
 //---- Application start
 
 function start_application(choice) {
-
     switch (choice) {
         case 1: {
             small_topology();
@@ -175,25 +200,27 @@ function huge_topology() {
     var phone_4 = network.add_device("Xiaomi Redmi S2", "c", [1250, 300]);
     phone_4.add_interface(network.generate_mac(), null, -1);
 
-    network.add_connection(global_router_1, wifi_router, 0, 1);
+    var server = network.add_device("Video Server", "s", [1000, 400]);
+    server.add_interface(network.generate_mac(), null, -1);
+
     network.add_connection(global_router_2, wifi_router, 0, 2);
+    network.add_connection(server, global_router_2, 0, 1);
+
+    network.add_connection(global_router_1, wifi_router, 0, 1);
+    network.add_connection(global_router_1, homework_router, 1, 0);
+    
     network.add_connection(phone_1, wifi_router, 0, 0);
     network.add_connection(laptop, wifi_router, 0, 0);
     network.add_connection(phone_2, wifi_router, 0, 0);
-    network.add_connection(global_router_1, homework_router, 1, 0);
-    network.add_connection(homework_router, phone_3, 1, 0);
-    network.add_connection(homework_router, phone_4, 1, 0);
 
-    var server = network.add_device("Video Server", "s", [1000, 400]);
-    server.add_interface(network.generate_mac(), null, -1);
-    network.add_connection(server, global_router_2, 0, 1);
+    network.add_connection(phone_3, homework_router, 0, 1);
+    network.add_connection(phone_4, homework_router, 0, 1);
+
 
     var network_view = new NetworkRenderer(network);
 
     global_network = network;
     global_network_view = network_view;
-
-    start_request();
 }
 
 function small_topology() {
@@ -229,12 +256,6 @@ function small_topology() {
 
     global_network = network;
     global_network_view = network_view;
-
-    start_request();
-}
-
-function start_request() {
-    global_network.start_request("3.3.3.2", "2.2.2.1", true);
 }
 
 //---- End of Application start
@@ -254,6 +275,7 @@ class Network {
     }
 
     start_request(start, end, response) {
+        console.log(start, end);
         var start_data = this.get_d_by_ip(start);
         var start_device = start_data.device;
         var temp_link = this.get_l_by_id(start_device.forwarding_table[end].link_id);
@@ -491,7 +513,9 @@ class Network {
             }
         }
 
-        var visited = [link.id];
+        console.log("=================");
+
+        var visited = [];
         var links = [];
 
         for (var i in device_1.forwarding_table) {
@@ -508,6 +532,7 @@ class Network {
             }
         }
 
+        console.log("-----------------------------------------");
 
         links = [];
 
@@ -516,7 +541,6 @@ class Network {
                 links.push(device_2.forwarding_table[i].link_id);
             }
         }
-
         for (var i in links) {
             if (visited.indexOf(links[i]) == -1) {
                 visited.push(links[i]);
@@ -524,6 +548,8 @@ class Network {
                 this.update_forwarding_tables(device_2, link, visited);
             }
         }
+
+        console.log("++++++++++++++++");
     }
 
     remove_connection(link) {
@@ -539,8 +565,11 @@ class Network {
         var temp_device_info = Number(link.device_1.dev) != Number(device.id) ? link.device_1 : link.device_2;
         var temp_device = this.get_d_by_id(temp_device_info.dev);
 
+        console.log(device.name, temp_device.name, device.forwarding_table);
+
         for (var i in device.forwarding_table) {
             if (temp_device.get_i_by_ip(i) == null && !temp_device.forwarding_table[i]) {
+                console.log(i);
                 temp_device.forwarding_table[i] = {
                     interface_id: temp_device_info.int,
                     link_id: link.id
@@ -563,30 +592,6 @@ class Network {
                 this.update_forwarding_tables(temp_device, link, visited);
             }
         }
-    }
-
-    update_forwarding_tabless(device, current_ip_address, visited) {
-        visited.push(current_ip_address);
-
-        var temp_device = this.get_d_by_ip(current_ip_address);
-        var interface_1 = temp_device.interface_d;
-
-        for (var ip_address in device.forwarding_table) {
-            if (ip_address != interface_1.ip_address) {
-                temp_device.device.forwarding_table[ip_address] = {
-                    interface_id: interface_1.id,
-                    link_id: null
-                }
-            }
-        }
-
-        for (var ip_address in temp_device.forwarding_table) {
-            if (visited.indexOf(ip_address) == -1) {
-                this.update_forwarding_tables(temp_device, ip_address, copy_array_1d(visited));
-            }
-        }
-
-        return;
     }
 
     //---- Sub-Routine Functional
@@ -1125,5 +1130,5 @@ function copy_object(obj1) {
     return obj3;
 }
 
-start_application(1);
+start_application(2);
 toggle_toolbar(false);
