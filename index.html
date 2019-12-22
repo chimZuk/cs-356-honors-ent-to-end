@@ -16,7 +16,7 @@
         <div class="status-bar shadow" id="src-block">
             <a>Please, select source device: <a id="src-device"></a></a>
         </div>
-        
+
         <div class="status-bar shadow" id="dst-block">
             <a>Please, select destination device: <a id="dst-device"></a></a>
         </div>
@@ -45,7 +45,11 @@
                 </div>
             </div>
             <div class="hops-window-content" id="hops-window-content">
-
+                <div class="hops-side-nav">
+                    <a onclick="change_view(1);">Table view</a>
+                    <a onclick="change_view(2);">Step view</a>
+                </div>
+                <div class="hops-content" id="hops-content"></div>
             </div>
         </div>
     </div>

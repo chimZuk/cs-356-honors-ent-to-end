@@ -8,6 +8,8 @@ var dst_block = $("#dst-block");
 var src_device = $("#src-device");
 var dst_device = $("#dst-device");
 
+var hops_content = $("#hops-content");
+
 var $canvas = $("#network-canvas");
 var network_canvas = $("#network-canvas")[0];
 var network_canvas_context = network_canvas.getContext('2d');
@@ -138,19 +140,159 @@ function send_request(layer, is_initial) {
     }
 }
 
+var last_request;
+var last_response;
+var last_data;
+
 function process_hops(data) {
     toggle_toolbar(true);
     console.log(data);
     var src = data[0].interfaces[data[0].forwarding_table[data[1].interfaces[0].ip_address].interface_id];
     var dst = data[1].interfaces[data[1].forwarding_table[data[0].interfaces[0].ip_address].interface_id];
 
-    global_network.start_request(src.ip_address, dst.ip_address, true);
+    last_request = global_network.start_request(src.ip_address, dst.ip_address);
+    last_response = global_network.start_request(dst.ip_address, src.ip_address);
+    last_data = data;
+    console.log(last_request);
+    console.log(last_response);
+
+    change_view(last_view);
+}
+
+function table_view() {
+    var html = "";
+
+    console.log($canvas.getLayer('link_10'));
+
+    html += "<div style='float: left;' class='hops'>";
+    html += `<h4>From ` + last_data[0].name + ` to ` + last_data[1].name + `</h4>`;
+    html += "<h4>Request:</h4>";
+    html += "<table cellspacing='0'>";
+    for (var i in last_request) {
+        var hop = last_request[i];
+
+        html += "<tr>"
+        html += "<td rowspan='2'>Hop " + (Number(i) + Number(1)) + "</td>"
+        html += "<td>SRC IP</td>"
+        html += "<td>" + hop.ip_src + "</td>"
+        html += "<td>SRC MAC</td>"
+        html += "<td>" + hop.mac_src + "</td>"
+        html += "</tr>"
+
+        html += "<tr>"
+        html += "<td>DST IP</td>"
+        html += "<td>" + hop.ip_dst + "</td>"
+        html += "<td>DST MAC</td>"
+        html += "<td>" + hop.mac_dst + "</td>"
+        html += "</tr>"
+    }
+
+    html += "</table>";
+    html += "</div>";
+
+    html += "<div style='float: left;' class='hops'>";
+    html += `<h4>From ` + last_data[1].name + ` to ` + last_data[0].name + `</h4>`;
+    html += "<h4>Response:</h4>";
+    html += "<table>";
+    for (var i in last_response) {
+        var hop = last_response[i];
+
+        html += "<tr>"
+        html += "<td rowspan='2'>Hop " + (Number(i) + Number(1)) + "</td>"
+        html += "<td>SRC IP</td>"
+        html += "<td>" + hop.ip_src + "</td>"
+        html += "<td>SRC MAC</td>"
+        html += "<td>" + hop.mac_src + "</td>"
+        html += "</tr>"
+
+        html += "<tr>"
+        html += "<td>DST IP</td>"
+        html += "<td>" + hop.ip_dst + "</td>"
+        html += "<td>DST MAC</td>"
+        html += "<td>" + hop.mac_dst + "</td>"
+        html += "</tr>"
+    }
+
+    html += "</table>";
+    html += "</div>";
+
+    hops_content.html(html);
+}
+
+function step_view() {
+    var html = "";
+
+    html += "<div style='float: left;' class='hops'>";
+    html += `<h4>Frsdfsdom ` + last_data[0].name + ` to ` + last_data[1].name + `</h4>`;
+    html += "<h4>Request:</h4>";
+    html += "<table cellspacing='0'>";
+    for (var i in last_request) {
+        var hop = last_request[i];
+
+        html += "<tr>"
+        html += "<td rowspan='2'>Hop " + (Number(i) + Number(1)) + "</td>"
+        html += "<td>SRC IP</td>"
+        html += "<td>" + hop.ip_src + "</td>"
+        html += "<td>SRC MAC</td>"
+        html += "<td>" + hop.mac_src + "</td>"
+        html += "</tr>"
+
+        html += "<tr>"
+        html += "<td>DST IP</td>"
+        html += "<td>" + hop.ip_dst + "</td>"
+        html += "<td>DST MAC</td>"
+        html += "<td>" + hop.mac_dst + "</td>"
+        html += "</tr>"
+    }
+
+    html += "</table>";
+    html += "</div>";
+
+    html += "<div style='float: left;' class='hops'>";
+    html += `<h4>From ` + last_data[1].name + ` to ` + last_data[0].name + `</h4>`;
+    html += "<h4>Response:</h4>";
+    html += "<table>";
+    for (var i in last_response) {
+        var hop = last_response[i];
+
+        html += "<tr>"
+        html += "<td rowspan='2'>Hop " + (Number(i) + Number(1)) + "</td>"
+        html += "<td>SRC IP</td>"
+        html += "<td>" + hop.ip_src + "</td>"
+        html += "<td>SRC MAC</td>"
+        html += "<td>" + hop.mac_src + "</td>"
+        html += "</tr>"
+
+        html += "<tr>"
+        html += "<td>DST IP</td>"
+        html += "<td>" + hop.ip_dst + "</td>"
+        html += "<td>DST MAC</td>"
+        html += "<td>" + hop.mac_dst + "</td>"
+        html += "</tr>"
+    }
+
+    html += "</table>";
+    html += "</div>";
+
+    hops_content.html(html);
 }
 
 //---- End of Hops Start
 
-
+var last_view = 1;
 //---- Application start
+function change_view(choice = last_view) {
+    switch (choice) {
+        case 1: {
+            table_view();
+            break;
+        }
+        case 2: {
+            step_view();
+            break;
+        }
+    }
+}
 
 function start_application(choice) {
     switch (choice) {
@@ -208,7 +350,7 @@ function huge_topology() {
 
     network.add_connection(global_router_1, wifi_router, 0, 1);
     network.add_connection(global_router_1, homework_router, 1, 0);
-    
+
     network.add_connection(phone_1, wifi_router, 0, 0);
     network.add_connection(laptop, wifi_router, 0, 0);
     network.add_connection(phone_2, wifi_router, 0, 0);
@@ -271,11 +413,10 @@ class Network {
         this.ip_list = [];
         this.mac_list = [];
         this.id_count = -1;
-
     }
 
-    start_request(start, end, response) {
-        console.log(start, end);
+    start_request(start, end) {
+        var hops = [];
         var start_data = this.get_d_by_ip(start);
         var start_device = start_data.device;
         var temp_link = this.get_l_by_id(start_device.forwarding_table[end].link_id);
@@ -300,8 +441,17 @@ class Network {
                 dev: temp_link.device_2.dev
             };
 
-        console.log("SRC IP:", start, "SRC MAC:", src.mac);
-        console.log("DST IP:", end, "DST MAC:", dst.mac);
+        hops.push({
+            ip_src: start,
+            ip_dst: end,
+            mac_src: src.mac,
+            mac_dst: dst.mac,
+            dev_src: this.get_d_by_mac(src.mac).device,
+            dev_dst: this.get_d_by_mac(src.mac).device,
+            int_src: this.get_d_by_mac(src.mac).interface_d,
+            int_dst: this.get_d_by_mac(src.mac).interface_d,
+            link: temp_link
+        });
 
         while (temp_link != null) {
             start_device = (temp_link.device_1.dev != start_device.id) ? this.get_d_by_id(temp_link.device_1.dev) : this.get_d_by_id(temp_link.device_2.dev);
@@ -329,14 +479,21 @@ class Network {
                         dev: temp_link.device_2.dev
                     };
 
-                console.log("SRC IP:", start, "SRC MAC:", src.mac);
-                console.log("DST IP:", end, "DST MAC:", dst.mac);
+                hops.push({
+                    ip_src: start,
+                    ip_dst: end,
+                    mac_src: src.mac,
+                    mac_dst: dst.mac,
+                    dev_src: this.get_d_by_mac(src.mac).device,
+                    dev_dst: this.get_d_by_mac(src.mac).device,
+                    int_src: this.get_d_by_mac(src.mac).interface_d,
+                    int_dst: this.get_d_by_mac(src.mac).interface_d,
+                    link: temp_link
+                });
             }
         }
 
-        if (response) {
-            this.start_request(end, start, false);
-        }
+        return hops;
     }
 
     //---- Network Creation Functional
@@ -513,8 +670,6 @@ class Network {
             }
         }
 
-        console.log("=================");
-
         var visited = [];
         var links = [];
 
@@ -532,8 +687,6 @@ class Network {
             }
         }
 
-        console.log("-----------------------------------------");
-
         links = [];
 
         for (var i in device_2.forwarding_table) {
@@ -548,8 +701,6 @@ class Network {
                 this.update_forwarding_tables(device_2, link, visited);
             }
         }
-
-        console.log("++++++++++++++++");
     }
 
     remove_connection(link) {
@@ -565,11 +716,8 @@ class Network {
         var temp_device_info = Number(link.device_1.dev) != Number(device.id) ? link.device_1 : link.device_2;
         var temp_device = this.get_d_by_id(temp_device_info.dev);
 
-        console.log(device.name, temp_device.name, device.forwarding_table);
-
         for (var i in device.forwarding_table) {
             if (temp_device.get_i_by_ip(i) == null && !temp_device.forwarding_table[i]) {
-                console.log(i);
                 temp_device.forwarding_table[i] = {
                     interface_id: temp_device_info.int,
                     link_id: link.id
@@ -901,10 +1049,9 @@ class NetworkRenderer {
         for (var link in this.links) {
             var i1 = $canvas.getLayer('interface_box_' + this.links[link].device_1.dev + '_' + this.links[link].device_1.int);
             var i2 = $canvas.getLayer('interface_box_' + this.links[link].device_2.dev + '_' + this.links[link].device_2.int);
-
             $canvas.addLayer({
                 type: 'line', layer: true,
-                name: 'link_' + link, groups: ['common', 'links'], data: { id: this.links[link].id },
+                name: 'link_' + this.links[link].id, groups: ['common', 'links'], data: { id: this.links[link].id },
                 x1: i1.x, y1: i1.y, x2: i2.x, y2: i2.y,
                 strokeStyle: '#7383bf', shadowColor: '#222', shadowBlur: 3, strokeWidth: 10, rounded: true, index: 0,
                 cursors: { mouseover: 'pointer', mousedown: 'pointer', mouseup: 'pointer' },

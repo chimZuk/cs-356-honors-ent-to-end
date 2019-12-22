@@ -127,8 +127,52 @@ img {
     display: none;
     height: 400px;
     width: 100%;
+}
+
+.hops-window-content a {
+    color: #bcc5e4;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 1px solid #bcc5e4;
+    background-color: #424a60;
+    padding: 5px 10px;
+    margin-bottom: 10px;
+}
+
+.hops-window-content a:hover {   
+    text-decoration: underline;
+    border: 1px solid #424a60;
+}
+
+.hops-side-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 5px 20px 0px 20px;
+    height: 100%;
+    background-color: #424a60;
+    float: left;
+}
+
+.hops-content {
+    width: 100%;
+    height: 100%;
     background-color: ghostwhite;
-    opacity: 0.9;
+}
+
+.hops-content .hops {
+    margin: 10px;
+}
+
+table {
+    border-collapse: collapse;
+  }
+  
+table, th, td {
+    border: 1px solid black;
+}
+
+td {
+    padding: 0px 5px;
 }
 
 /* Dialog Styles */
