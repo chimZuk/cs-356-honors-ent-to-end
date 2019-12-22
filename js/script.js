@@ -1579,5 +1579,5 @@ function copy_object(obj1) {
     return obj3;
 }
 
-start_application(2);
+start_application(1);
 toggle_toolbar(false);
