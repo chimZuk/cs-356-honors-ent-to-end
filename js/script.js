@@ -178,13 +178,18 @@ function start_applicationn() {
 function start_application() {
     let network = new Network("Internet");
 
-    var wifi_router = network.add_device("WiFi Router", "r", [750, 300]);
+    var wifi_router = network.add_device("WiFi Router", "r", [500, 300]);
     wifi_router.add_interface(network.generate_mac(), null, -1);
     wifi_router.add_interface(network.generate_mac(), null, 1);
+    wifi_router.add_interface(network.generate_mac(), null, 1);
 
-    var global_router = network.add_device("Global Router", "r", [1050, 300]);
-    global_router.add_interface(network.generate_mac(), null, -1);
-    global_router.add_interface(network.generate_mac(), null, 1);
+    var global_router_1 = network.add_device("Global Router 1", "r", [750, 200]);
+    global_router_1.add_interface(network.generate_mac(), null, -1);
+    global_router_1.add_interface(network.generate_mac(), null, 1);
+
+    var global_router_2 = network.add_device("Global Router 2", "r", [750, 400]);
+    global_router_2.add_interface(network.generate_mac(), null, -1);
+    global_router_2.add_interface(network.generate_mac(), null, 1);
 
     var laptop = network.add_device("Yoga 920", "c", [250, 100]);
     laptop.add_interface(network.generate_mac(), null, 1);
@@ -198,21 +203,23 @@ function start_application() {
     phone_2.add_interface(network.generate_mac(), null, 1);
     network.add_connection(phone_2, wifi_router, 0, 0);
 
-    network.add_connection(global_router, wifi_router, 0, 1);
+    network.add_connection(global_router_1, wifi_router, 0, 1);
+    network.add_connection(global_router_2, wifi_router, 0, 2);
 
 
 
-    var server = network.add_device("Video Server", "s", [1350, 300]);
+    var server = network.add_device("Video Server", "s", [1000, 500]);
     server.add_interface(network.generate_mac(), null, -1);
-    network.add_connection(server, global_router, 0, 1);
-
-
-
+    network.add_connection(server, global_router_2, 0, 1);
 
     var network_view = new NetworkRenderer(network);
 
     global_network = network;
     global_network_view = network_view;
+}
+
+function start_request() {
+    global_network.start_request();
 }
 
 function start_applicationnn() {
