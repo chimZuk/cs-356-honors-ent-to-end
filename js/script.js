@@ -117,6 +117,7 @@ var request_devices;
 function send_request(layer, is_initial) {
     request_status = (is_initial) ? 0 : request_status + 1;
     if (is_initial) {
+        toggle_toolbar(false);
         global_network_view.render_network(global_network);
         request_devices = [];
         src_block.fadeIn();
@@ -316,58 +317,260 @@ function step_view() {
     var html = "";
 
     html += "<div style='float: left;' class='hops'>";
-    html += `<h4>Frsdfsdom ` + last_data[0].name + ` to ` + last_data[1].name + `</h4>`;
-    html += "<h4>Request:</h4>";
-    html += "<table cellspacing='0'>";
+    html += `<span>From ` + last_data[0].name + ` to ` + last_data[1].name + `: </span>`;
     for (var i in last_request) {
         var hop = last_request[i];
-
-        html += "<tr>"
-        html += "<td rowspan='2'>Hop " + (Number(i) + Number(1)) + "</td>"
-        html += "<td>SRC IP</td>"
-        html += "<td>" + hop.ip_src + "</td>"
-        html += "<td>SRC MAC</td>"
-        html += "<td>" + hop.mac_src + "</td>"
-        html += "</tr>"
-
-        html += "<tr>"
-        html += "<td>DST IP</td>"
-        html += "<td>" + hop.ip_dst + "</td>"
-        html += "<td>DST MAC</td>"
-        html += "<td>" + hop.mac_dst + "</td>"
-        html += "</tr>"
+        html += `<a onclick="req_hop(` + i + `);">Hop ` + (Number(i) + Number(1)) + `</a>`
     }
-
-    html += "</table>";
-    html += "</div>";
-
-    html += "<div style='float: left;' class='hops'>";
-    html += `<h4>From ` + last_data[1].name + ` to ` + last_data[0].name + `</h4>`;
-    html += "<h4>Response:</h4>";
-    html += "<table>";
+    html += `<span style="margin-left: 10px;">From ` + last_data[1].name + ` to ` + last_data[0].name + `: </span>`;
     for (var i in last_response) {
         var hop = last_response[i];
-
-        html += "<tr>"
-        html += "<td rowspan='2'>Hop " + (Number(i) + Number(1)) + "</td>"
-        html += "<td>SRC IP</td>"
-        html += "<td>" + hop.ip_src + "</td>"
-        html += "<td>SRC MAC</td>"
-        html += "<td>" + hop.mac_src + "</td>"
-        html += "</tr>"
-
-        html += "<tr>"
-        html += "<td>DST IP</td>"
-        html += "<td>" + hop.ip_dst + "</td>"
-        html += "<td>DST MAC</td>"
-        html += "<td>" + hop.mac_dst + "</td>"
-        html += "</tr>"
+        html += `<a onclick="resp_hop(` + i + `);">Hop ` + (Number(i) + Number(1)) + `</a>`
     }
 
-    html += "</table>";
+    html += "<div id='step-content' style='margin-top: 15px;'>"
+    html += "<h4>Please, select hop to view information.</h4>"
+    html += "</div>"
+
     html += "</div>";
 
+
+
     hops_content.html(html);
+}
+
+function req_hop(id) {
+    global_network_view.render_network(global_network);
+    var hop = last_request[id];
+    var font = "12pt";
+    var font_family = 'Solway, serif';
+
+    var html = "";
+
+    html += "<table><tr>"
+    html += "<td rowspan='2'>Hop " + (Number(id) + Number(1)) + "</td>"
+    html += "<td>SRC IP</td>"
+    html += "<td>" + hop.ip_src + "</td>"
+    html += "<td>SRC MAC</td>"
+    html += "<td>" + hop.mac_src + "</td>"
+    html += "</tr>"
+
+    html += "<tr>"
+    html += "<td>DST IP</td>"
+    html += "<td>" + hop.ip_dst + "</td>"
+    html += "<td>DST MAC</td>"
+    html += "<td>" + hop.mac_dst + "</td>"
+    html += "</tr></tableЮ"
+
+    $("#step-content").html(html);
+
+    $canvas.setLayer('link_' + hop.link.id, {
+        strokeStyle: '#774c5d',
+        mouseover: function () { },
+
+        mouseout: function () { },
+
+        click: function () { }
+    });
+
+    $canvas.setLayer('interface_box_' + hop.dev_src.id + '_' + hop.int_src.id, {
+        fillStyle: '#774c5d',
+        mouseover: function () { },
+
+        mouseout: function () { },
+
+        click: function () { }
+    });
+
+    $canvas.setLayer('interface_box_' + hop.dev_dst.id + '_' + hop.int_dst.id, {
+        fillStyle: '#774c5d',
+        mouseover: function () { },
+
+        mouseout: function () { },
+
+        click: function () { }
+    });
+
+    var layer = $canvas.getLayer('interface_box_' + hop.dev_src.id + '_' + hop.int_src.id)
+    var id = hop.mac_src;
+
+    $canvas.addLayer({
+        type: 'text', text: layer.data.interface_data.mac_address, layer: true,
+        name: 'popup_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y - 30, fromCenter: true,
+        fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+    });
+
+    $canvas.addLayer({
+        type: 'rectangle', layer: true,
+        name: 'popup_body_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y - 30, width: $canvas.measureText('popup_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+        fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+    });
+
+    $canvas.addLayer({
+        type: 'text', text: layer.data.interface_data.ip_address, layer: true,
+        name: 'popup_1_' + id, groups: ['popup'],
+        x: layer.x, y: layer.y - 55, fromCenter: true,
+        fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+    });
+
+    $canvas.addLayer({
+        type: 'rectangle', layer: true,
+        name: 'popup_1_body_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y - 55, width: $canvas.measureText('popup_1_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+        fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+    });
+
+    layer = $canvas.getLayer('interface_box_' + hop.dev_dst.id + '_' + hop.int_dst.id)
+    id = hop.mac_dst;
+
+    $canvas.addLayer({
+        type: 'text', text: layer.data.interface_data.mac_address, layer: true,
+        name: 'popup_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y + 30, fromCenter: true,
+        fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+    });
+
+    $canvas.addLayer({
+        type: 'rectangle', layer: true,
+        name: 'popup_body_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y + 30, width: $canvas.measureText('popup_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+        fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+    });
+
+    $canvas.addLayer({
+        type: 'text', text: layer.data.interface_data.ip_address, layer: true,
+        name: 'popup_1_' + id, groups: ['popup'],
+        x: layer.x, y: layer.y + 55, fromCenter: true,
+        fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+    });
+
+    $canvas.addLayer({
+        type: 'rectangle', layer: true,
+        name: 'popup_1_body_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y + 55, width: $canvas.measureText('popup_1_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+        fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+    });
+
+    $canvas.drawLayers();
+}
+
+function resp_hop(id) {
+    global_network_view.render_network(global_network);
+    var hop = last_response[id];
+    var font = "12pt";
+    var font_family = 'Solway, serif';
+
+    var html = "";
+
+    html += "<table><tr>"
+    html += "<td rowspan='2'>Hop " + (Number(id) + Number(1)) + "</td>"
+    html += "<td>SRC IP</td>"
+    html += "<td>" + hop.ip_src + "</td>"
+    html += "<td>SRC MAC</td>"
+    html += "<td>" + hop.mac_src + "</td>"
+    html += "</tr>"
+
+    html += "<tr>"
+    html += "<td>DST IP</td>"
+    html += "<td>" + hop.ip_dst + "</td>"
+    html += "<td>DST MAC</td>"
+    html += "<td>" + hop.mac_dst + "</td>"
+    html += "</tr></tableЮ"
+
+    $("#step-content").html(html);
+
+    $canvas.setLayer('link_' + hop.link.id, {
+        strokeStyle: '#774c5d',
+        mouseover: function () { },
+
+        mouseout: function () { },
+
+        click: function () { }
+    });
+
+    $canvas.setLayer('interface_box_' + hop.dev_src.id + '_' + hop.int_src.id, {
+        fillStyle: '#774c5d',
+        mouseover: function () { },
+
+        mouseout: function () { },
+
+        click: function () { }
+    });
+
+    $canvas.setLayer('interface_box_' + hop.dev_dst.id + '_' + hop.int_dst.id, {
+        fillStyle: '#774c5d',
+        mouseover: function () { },
+
+        mouseout: function () { },
+
+        click: function () { }
+    });
+
+    var layer = $canvas.getLayer('interface_box_' + hop.dev_src.id + '_' + hop.int_src.id)
+    var id = hop.mac_src;
+
+    $canvas.addLayer({
+        type: 'text', text: layer.data.interface_data.mac_address, layer: true,
+        name: 'popup_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y - 30, fromCenter: true,
+        fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+    });
+
+    $canvas.addLayer({
+        type: 'rectangle', layer: true,
+        name: 'popup_body_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y - 30, width: $canvas.measureText('popup_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+        fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+    });
+
+    $canvas.addLayer({
+        type: 'text', text: layer.data.interface_data.ip_address, layer: true,
+        name: 'popup_1_' + id, groups: ['popup'],
+        x: layer.x, y: layer.y - 55, fromCenter: true,
+        fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+    });
+
+    $canvas.addLayer({
+        type: 'rectangle', layer: true,
+        name: 'popup_1_body_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y - 55, width: $canvas.measureText('popup_1_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+        fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+    });
+
+    layer = $canvas.getLayer('interface_box_' + hop.dev_dst.id + '_' + hop.int_dst.id)
+    id = hop.mac_dst;
+
+    $canvas.addLayer({
+        type: 'text', text: layer.data.interface_data.mac_address, layer: true,
+        name: 'popup_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y + 30, fromCenter: true,
+        fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+    });
+
+    $canvas.addLayer({
+        type: 'rectangle', layer: true,
+        name: 'popup_body_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y + 30, width: $canvas.measureText('popup_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+        fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+    });
+
+    $canvas.addLayer({
+        type: 'text', text: layer.data.interface_data.ip_address, layer: true,
+        name: 'popup_1_' + id, groups: ['popup'],
+        x: layer.x, y: layer.y + 55, fromCenter: true,
+        fillStyle: '#bcc5e4', shadowColor: '#222', shadowBlur: 3, fontSize: font, fontFamily: font_family
+    });
+
+    $canvas.addLayer({
+        type: 'rectangle', layer: true,
+        name: 'popup_1_body_' + id, groups: ['common', 'popup'],
+        x: layer.x, y: layer.y + 55, width: $canvas.measureText('popup_1_' + id).width * 1.3, height: 22, fromCenter: true, index: -1,
+        fillStyle: '#774c5d', shadowColor: '#222', shadowBlur: 3
+    });
+
+    $canvas.drawLayers();
 }
 
 //---- End of Hops Start
@@ -377,10 +580,12 @@ var last_view = 1;
 function change_view(choice = last_view) {
     switch (choice) {
         case 1: {
+            global_network_view.render_network(global_network);
             table_view();
             break;
         }
         case 2: {
+            global_network_view.render_network(global_network);
             step_view();
             break;
         }
@@ -388,6 +593,7 @@ function change_view(choice = last_view) {
 }
 
 function start_application(choice) {
+    toggle_toolbar(false);
     switch (choice) {
         case 1: {
             small_topology();
@@ -465,25 +671,25 @@ function small_topology() {
     wifi_router.add_interface(network.generate_mac(), null, -1);
     wifi_router.add_interface(network.generate_mac(), null, 1);
 
-    var global_router_1 = network.add_device("Global Router 1", "r", [750, 300]);
+    var global_router_1 = network.add_device("Global Router 1", "r", [1200, 300]);
     global_router_1.add_interface(network.generate_mac(), null, -1);
     global_router_1.add_interface(network.generate_mac(), null, 1);
 
-    var laptop = network.add_device("Yoga 920", "c", [250, 100]);
+    var laptop = network.add_device("Yoga 920", "c", [100, 100]);
     laptop.add_interface(network.generate_mac(), null, 1);
     network.add_connection(laptop, wifi_router, 0, 0);
 
-    var phone_1 = network.add_device("Samsung Galaxy S9", "c", [250, 300]);
+    var phone_1 = network.add_device("Samsung Galaxy S9", "c", [100, 300]);
     phone_1.add_interface(network.generate_mac(), null, 1);
     network.add_connection(phone_1, wifi_router, 0, 0);
 
-    var phone_2 = network.add_device("iPhone 7", "c", [250, 500]);
+    var phone_2 = network.add_device("iPhone 7", "c", [100, 500]);
     phone_2.add_interface(network.generate_mac(), null, 1);
     network.add_connection(phone_2, wifi_router, 0, 0);
 
     network.add_connection(global_router_1, wifi_router, 0, 1);
 
-    var server = network.add_device("Video Server", "s", [1000, 300]);
+    var server = network.add_device("Video Server", "s", [1800, 300]);
     server.add_interface(network.generate_mac(), null, -1);
     network.add_connection(server, global_router_1, 0, 1);
 
@@ -1341,6 +1547,10 @@ function show_dialog(type) {
             break;
         }
     }
+}
+
+function how_to() {
+    $("#dialog-container").fadeIn();
 }
 
 function toggle_toolbar(toggle) {

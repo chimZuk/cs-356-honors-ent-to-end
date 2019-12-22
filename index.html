@@ -25,6 +25,7 @@
             <div class="hops-toolbar shadow">
                 <div class="hops-actions" id="hops-actions">
                     <a onclick="send_request(null, true);">Start Request</a>
+                    <a onclick="how_to();">How to Use?</a>
                 </div>
                 <div class="network-actions" id="network-actions" style="display: none;">
                     <a onclick="show_dialog('nd');">Add Device</a>
@@ -40,8 +41,8 @@
                     <a onclick="start_application(2);">Pre-load big topology</a>
                 </div>
                 <div class="toggle-toolbar">
-                    <a id="open-window" onclick="toggle_toolbar(true);">Show Hops Details</a>
-                    <a id="close-window" onclick="toggle_toolbar(false);">Hide Hops Details</a>
+                    <a id="open-window" onclick="toggle_toolbar(true);" style="opacity: 0;">Show Hops Details</a>
+                    <a id="close-window" onclick="toggle_toolbar(false);" style="opacity: 0;">Hide Hops Details</a>
                 </div>
             </div>
             <div class="hops-window-content" id="hops-window-content">
@@ -55,7 +56,23 @@
     </div>
 
     <div class="dialog-container" id="dialog-container">
-        <div class="dialog new-device-dialog shadow" id="new-device-dialog">
+        <div class="dialog how-to-dialog shadow" id="how-to-dialog">
+            <p>1. Select desired topology.</p>
+            <p>&nbsp;&nbsp; 1.1 Click "Pre-load small topology" to load small topology.</p>
+            <p>&nbsp;&nbsp; 1.1 Click "Pre-load big topology" to load big topology.</p>
+            <p>2. Click "Start Request".</p>
+            <p>3. Click on the picture of Source device.</p>
+            <p>4. Click on the picture of Destination device.</p>
+            <p>5. Select desired Hops view in the popup window.</p>
+            <p>&nbsp;&nbsp; 5.1 Click "Table view" to open table with Request and Response hops.</p>
+            <p>&nbsp;&nbsp; 5.2 Click "Step view" to open step by step hops demonstration.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp; 5.2.1 Navigate between "Hop #" buttons to view hops information.</p>
+            <div class="dialog-actions">
+                <button class="shadow" type="button" onclick="close_dialog()">Close</button>
+            </div>
+        </div>
+
+        <div class="dialog new-device-dialog shadow" id="new-device-dialog" style="display: none;">
             <form id="new-device-form">
                 <div class="dialog-header">
                     <h3>Add new Device</h3>
@@ -75,7 +92,6 @@
                 </div>
             </form>
         </div>
-
     </div>
 
     <script src="js/script.js"></script>

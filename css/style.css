@@ -245,3 +245,12 @@ td {
 .new-device-dialog input {
     margin-bottom: 10px;
 }
+
+.how-to-dialog {
+    position: absolute;
+    width: 570px;
+    left: calc(50vw - 285px);
+    top: calc(50vh - 120px);
+    padding: 30px 15px 15px 30px;
+    background-color: #424a60;
+}
